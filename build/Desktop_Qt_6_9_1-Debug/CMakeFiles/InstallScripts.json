@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/run/Chess/build/Desktop_Qt_6_9_1-Debug/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

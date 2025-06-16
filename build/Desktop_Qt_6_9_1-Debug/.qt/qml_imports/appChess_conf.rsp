@@ -1,0 +1,14 @@
+-rootPath
+/run/Chess
+-cmake-output
+-output-file
+/run/Chess/build/Desktop_Qt_6_9_1-Debug/.qt/qml_imports/appChess_conf.cmake
+-importPath
+/run/Chess/build/Desktop_Qt_6_9_1-Debug/Chess
+-importPath
+/run/Chess/build/Desktop_Qt_6_9_1-Debug
+-importPath
+/opt/Qt/6.9.1/gcc_64/qml
+-qrcFiles
+/run/Chess/build/Desktop_Qt_6_9_1-Debug/.qt/rcc/qmake_Chess.qrc
+/run/Chess/build/Desktop_Qt_6_9_1-Debug/.qt/rcc/appChess_raw_qml_0.qrc
