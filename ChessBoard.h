@@ -4,4 +4,4 @@ class ChessBoard
 {
 public:
     ChessBoard();
-};
+}
