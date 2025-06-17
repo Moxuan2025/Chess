@@ -1,5 +1,0 @@
---resource
-/run/Chess/build/Desktop_Qt_6_9_1-Debug/.qt/rcc/qmake_Chess.qrc
---resource
-/run/Chess/build/Desktop_Qt_6_9_1-Debug/.qt/rcc/appChess_raw_qml_0.qrc
-/qt/qml/Chess/Main.qml
