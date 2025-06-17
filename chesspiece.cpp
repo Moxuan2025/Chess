@@ -16,8 +16,8 @@ ChessPiece::ChessPiece(
     : QObject(parent)
 
 {
-    m_type(type);
-    m_isWhite(isWhite);
+    m_type = type;
+    m_isWhite = isWhite;
     m_position = QPoint(x, y);
 }
 
