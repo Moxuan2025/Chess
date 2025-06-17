@@ -7,10 +7,14 @@ class ChessPiece : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(int x READ x CONSTANT)
-    Q_PROPERTY(int y READ y CONSTANT)
-    Q_PROPERTY(bool isWhite READ isWhite CONSTANT)
-    Q_PROPERTY(QString type READ typeStr CONSTANT)
+    Q_PROPERTY(
+        int x READ x CONSTANT)
+    Q_PROPERTY(
+        int y READ y CONSTANT)
+    Q_PROPERTY(
+        bool isWhite READ isWhite CONSTANT)
+    Q_PROPERTY(
+        QString type READ typeStr CONSTANT)
 
 public:
     enum Type { None, Pawn, Rook, Knight, Bishop, Queen, King };
