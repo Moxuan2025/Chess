@@ -1,8 +1,6 @@
 #include "chesspiece.h"
 
-ChessPiece::ChessPiece(
-    QObject *parent)
-    : QObject(parent)
+ChessPiece::ChessPiece(QObject *parent) : QObject(parent)
 
 {
     m_type = None;
