@@ -11,6 +11,7 @@ class ChessBoard : public QObject
 
 public:
     explicit ChessBoard(QObject *parent = nullptr);
+    ChessPiece *pieceAtPosition(int x, int y) const;
     ~ChessBoard();
 
     QVariantList pieces() const;

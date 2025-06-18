@@ -131,6 +131,7 @@ ApplicationWindow {
                         radius: width/2
                         color:"yellow"
                         opacity: 0.5
+                        anchors.centerIn: parent
                         visible: window.highlightedPositions.some(pos =>
                             pos.x === col && pos.y === row)
                         MouseArea {
@@ -144,6 +145,7 @@ ApplicationWindow {
 
                                     if (isHighlighted) {
                                         // 移动棋子到新位置
+                                        console.log(col,row);
                                         window.selectedPiece.go(col, row);
                                         // 清除高亮
                                         window.highlightedPositions = [];
@@ -217,16 +219,31 @@ ApplicationWindow {
                                default: return "";
                                }
                            }
-                           MouseArea {
+                          MouseArea {
                                anchors.fill: parent
                                onClicked: {
                                    console.log(model);
                                  // 选中当前棋子
-                                   window.selectedPiece = model;
+                                   window.selectedPiece = modelData;
                                  // 获取可移动位置
-                                   window.highlightedPositions = model.willGo();
+                                   window.highlightedPositions = modelData.willGo();
                                }
-                           }
+                           }/*MouseArea {
+                               anchors.fill: parent
+                               onClicked: {
+                                   // 选中当前棋子
+                                   window.selectedPiece = model;
+
+                                   // 获取可移动位置并转换为 {x, y} 格式
+                                   var moves = modelData.willGo();
+                                   var positions = [];
+                                   for (var i = 0; i < moves.length; i++) {
+                                       positions.push({x: moves[i].x, y: moves[i].y});
+                                   }
+
+                                   window.highlightedPositions = positions;
+                               }
+                           }*/
                        }
                    }
                }

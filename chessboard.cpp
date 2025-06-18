@@ -110,3 +110,15 @@ QVariantList ChessBoard::pieces() const
     }
     return list;
 }
+ChessPiece* ChessBoard::pieceAtPosition(
+    //检测该点位是否有棋子
+    int x,
+    int y) const
+{
+    for (ChessPiece* piece : m_pieces) {
+        if (piece->x() == x && piece->y() == y) {
+            return piece;
+        }
+    }
+    return nullptr;
+}
