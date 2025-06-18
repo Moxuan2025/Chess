@@ -6,6 +6,7 @@ ChessPiece::ChessPiece(QObject *parent) : QObject(parent)
 {
     m_type = None;
     m_isWhite = false;
+    m_captured = false;
     // m_position = (0, 0);
     m_position = QPoint(0, 0);
 }
@@ -17,6 +18,7 @@ ChessPiece::ChessPiece(
 {
     m_type = type;
     m_isWhite = isWhite;
+    m_captured = false;
     m_position = QPoint(x, y);
 }
 
@@ -50,8 +52,20 @@ void ChessPiece::go(int newX, int newY)
     m_position.setX(newX);
     m_position.setY(newY);
     emit positionChanged();
+    // 通知棋盘棋子已移动
+    ChessBoard *board = qobject_cast<ChessBoard *>(parent());
+    if (board) { board->pieceMoved(); }
 }
 
+//...
+void ChessPiece::setCaptured(bool captured)
+{
+    if (m_captured != captured) {
+        m_captured = captured;
+        emit capturedChanged();
+    }
+}
+//...
 QList<QPoint> ChessPiece::willGo()
 {
     QList<QPoint> possibleMove;

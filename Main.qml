@@ -14,7 +14,8 @@ ApplicationWindow {
 
     property var selectedPiece: null
     property var highlightedPositions: []
-    Component.onCompleted: console.log("Piece source: ", p.source)
+    property bool isWhiteTurn: chessBoard.isWhiteTurn//gf
+  //  Component.onCompleted: console.log("Piece source: ", p.source)
 
     // 虚拟键盘
    /* InputPanel {
@@ -51,9 +52,19 @@ ApplicationWindow {
         Menu {
             title: qsTr("游戏")
             MenuItem {
-                text: qsTr("新游戏")
-                onTriggered: console.log("开始新游戏")
-            }
+                text: qsTr("新游戏 - 白方先行")
+                     onTriggered: {
+                     chessBoard.initializeBoard();
+                 chessBoard.setFirstMove(true);
+                     }
+                      }
+             MenuItem {
+              text: qsTr("新游戏 - 黑方先行")
+            onTriggered: {
+            chessBoard.initializeBoard();
+            chessBoard.setFirstMove(false);
+                           }
+                       }
             MenuItem {
                 text: qsTr("退出")
                 onTriggered: Qt.quit();
@@ -83,6 +94,15 @@ ApplicationWindow {
     Rectangle {
         anchors.fill: parent
         color: "#f0d9b5"
+        Text {
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 10
+        text: isWhiteTurn ? "白方回合" : "黑方回合"
+        font.pixelSize: 20
+        font.bold: true
+        color: "#8b0000"
+                }
 
         // 棋盘网格
         Grid {
@@ -135,31 +155,19 @@ ApplicationWindow {
                         visible: window.highlightedPositions.some(pos =>
                             pos.x === col && pos.y === row)
                         MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                // 如果已经有选中的棋子
-                                if (window.selectedPiece) {
-                                    // 检查是否点击了高亮位置
-                                    const isHighlighted = window.highlightedPositions.some(pos =>
-                                        pos.x === col && pos.y === row);
-
-                                    if (isHighlighted) {
-                                        // 移动棋子到新位置
-                                        console.log(col,row);
-                                        window.selectedPiece.go(col, row);
-                                        // 清除高亮
-                                        window.highlightedPositions = [];
-                                        window.selectedPiece = null;
-                                    } else {
-                                        // 如果点击了其他棋子，选中新棋子
-                                        window.selectedPiece = null;
-                                        window.highlightedPositions = [];
+                                    anchors.fill: parent
+                                    // 在黄色圆点的点击事件中
+                                    onClicked: {
+                                        if (window.selectedPiece) {
+                                            // 使用正确的坐标系统
+                                            chessBoard.movePiece(window.selectedPiece, col, row);
+                                            window.highlightedPositions = [];
+                                            window.selectedPiece = null;
+                                        }
                                     }
-                                }
-                            }
+                              }
                         }
                     }
-                }
                 }
             }
         }
@@ -176,9 +184,10 @@ ApplicationWindow {
         // 棋子显示 - 使用网格作为父对象
         Repeater {
                    model: chessBoard.pieces
-                   z: 1
+                   z: 2
 
                    delegate: Item {
+                       visible: !modelData.captured
                        // 计算棋子在网格中的位置
                        property real cellWidth: chessGrid.width / 8
                        property real cellHeight: chessGrid.height / 8
@@ -197,14 +206,14 @@ ApplicationWindow {
                            source: getPieceSource(modelData.pieceType, modelData.isWhite)
                            fillMode: Image.PreserveAspectFit
 
-                           // 添加调试信息
+                           /* 添加调试信息
                            onStatusChanged: {
                                if (status === Image.Error) {
                                    console.error("无法加载棋子图片: ", source, "错误:", errorString)
                                } else if (status === Image.Ready) {
                                    console.log("成功加载棋子图片: ", source)
                                }
-                           }
+                           }*/
 
                            // 获取棋子资源路径
                            function getPieceSource(type, isWhite) {
@@ -220,14 +229,14 @@ ApplicationWindow {
                                }
                            }
                           MouseArea {
+                            z:3
                                anchors.fill: parent
                                onClicked: {
-                                   console.log(model);
-                                 // 选中当前棋子
-                                   window.selectedPiece = modelData;
-                                 // 获取可移动位置
-                                   window.highlightedPositions = modelData.willGo();
-                               }
+                                 // 只能选择当前回合的棋子
+                                 if (modelData.isWhite === isWhiteTurn && !modelData.captured) {
+                                    window.selectedPiece = modelData;
+                                    window.highlightedPositions = modelData.willGo();
+                                      }
                            }/*MouseArea {
                                anchors.fill: parent
                                onClicked: {
@@ -264,14 +273,16 @@ ApplicationWindow {
     }
 
     // 状态栏
-    footer: ToolBar {
+    /*footer: ToolBar {
         Label {
             anchors.centerIn: parent
             text: "开局"
             font.italic: true
         }
-    }
+    }*/
 
+
+}
 
 }
 

@@ -54,6 +54,27 @@ QVariantList ChessBoard::pieces()
     }
     return list;
 }*/
+void ChessBoard::capturePieceAt(int x, int y)
+{
+    for (ChessPiece* pieces : m_pieces) {
+        if (!pieces->isCaptured() && pieces->x() == x && pieces->y() == y) {
+            pieces->setCaptured(true);
+            break;
+        }
+    }
+}
+
+void ChessBoard::setFirstMove(bool isWhite)
+{
+    m_isWhiteTurn = isWhite;
+    emit turnChanged();
+}
+
+void ChessBoard::switchTurn()
+{
+    m_isWhiteTurn = !m_isWhiteTurn;
+    emit turnChanged();
+}
 
 void ChessBoard::initializeBoard()
 {
@@ -62,6 +83,8 @@ void ChessBoard::initializeBoard()
         delete piece;
     }
     m_pieces.clear();
+    m_isWhiteTurn = true; // 重置为先手白方
+    emit turnChanged();
 
     // 创建黑方棋子
     m_pieces.append(new ChessPiece(ChessPiece::Rook, false, 0, 0, this));
@@ -110,15 +133,54 @@ QVariantList ChessBoard::pieces() const
     }
     return list;
 }
-ChessPiece* ChessBoard::pieceAtPosition(
-    //检测该点位是否有棋子
-    int x,
-    int y) const
+void ChessBoard::movePiece(ChessPiece* piece, int newX, int newY)
+{
+    if (!piece) return;
+
+    // 检查目标位置是否有对方棋子
+    ChessPiece* target = pieceAtPosition(newX, newY);
+    if (target && target->isWhite() != piece->isWhite()) {
+        // 吃子 - 从列表中移除并删除
+        m_pieces.removeOne(target);
+        delete target;
+        emit piecesChanged(); // 通知QML列表已变更
+    }
+    if (!piece) {
+        qDebug() << "移动失败：棋子为空";
+        return;
+    }
+
+    //测试代码...
+    qDebug() << "尝试移动棋子：" << piece->typeStr() << "(" << piece->x() << "," << piece->y() << ")"
+             << "-> (" << newX << "," << newY << ")";
+
+    // 检查目标位置
+    if (target) {
+        qDebug() << "目标位置有棋子：" << target->typeStr() << (target->isWhite() ? "白" : "黑");
+
+        if (target->isWhite() != piece->isWhite()) {
+            qDebug() << "执行吃子操作";
+            m_pieces.removeOne(target);
+            delete target;
+            emit piecesChanged();
+        } else {
+            qDebug() << "不能吃己方棋子";
+        }
+    } //...
+    // 移动棋子
+    piece->go(newX, newY);
+
+    // 切换回合
+    switchTurn();
+
+    // 通知QML棋子位置已更新
+    emit piecesChanged();
+}
+ChessPiece* ChessBoard::pieceAtPosition(int x, int y) const
 {
     for (ChessPiece* piece : m_pieces) {
-        if (piece->x() == x && piece->y() == y) {
-            return piece;
-        }
+        // 跳过已被俘的棋子
+        if (!piece->isCaptured() && piece->x() == x && piece->y() == y) { return piece; }
     }
     return nullptr;
 }
