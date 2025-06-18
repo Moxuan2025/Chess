@@ -25,6 +25,8 @@ public:
     bool isWhite() const { return m_isWhite; }
     Type type() const;
     QString typeStr() const;
+    void go(int newX, int newY);
+    QList<QPoint> willgo();
 
 private:
     Type m_type;

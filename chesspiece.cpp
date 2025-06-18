@@ -1,4 +1,5 @@
 #include "chesspiece.h"
+#include <iostream>
 
 ChessPiece::ChessPiece(QObject *parent) : QObject(parent)
 
@@ -42,4 +43,53 @@ QString ChessPiece::typeStr() const
     default:
         return "none"; //wu
     }
+}
+
+void ChessPiece::go(int newX, int newY)
+{
+    m_position.setX(newX);
+    m_position.setY(newY);
+}
+
+QList<QPoint> ChessPiece::willgo()
+{
+    QList<QPoint> possibleMove;
+
+    switch (m_type) {
+    case Pawn:
+    case Rook:
+    case Knight:
+    case Bishop:
+        for (int i = 1; i < 8; i++) {
+            possibleMove.append(QPoint(m_position.x() + i, m_position.y() + i));
+            possibleMove.append(QPoint(m_position.x() - i, m_position.y() - i));
+            possibleMove.append(QPoint(m_position.x() + i, m_position.y() - i));
+            possibleMove.append(QPoint(m_position.x() - i, m_position.y() + i));
+        }
+    case Queen:
+        for (int i = 1; i < 8; i++) {
+            possibleMove.append(QPoint(m_position.x() + i, m_position.y() + i));
+            possibleMove.append(QPoint(m_position.x() - i, m_position.y() - i));
+            possibleMove.append(QPoint(m_position.x() + i, m_position.y() - i));
+            possibleMove.append(QPoint(m_position.x() - i, m_position.y() + i));
+            possibleMove.append(QPoint(m_position.x() + i, m_position.y()));
+            possibleMove.append(QPoint(m_position.x() - i, m_position.y()));
+            possibleMove.append(QPoint(m_position.x(), m_position.y() - i));
+            possibleMove.append(QPoint(m_position.x(), m_position.y() + i));
+        }
+    case King:
+        possibleMove.append(QPoint(m_position.x() + 1, m_position.y() + 1));
+        possibleMove.append(QPoint(m_position.x() - 1, m_position.y() - 1));
+        possibleMove.append(QPoint(m_position.x() + 1, m_position.y() - 1));
+        possibleMove.append(QPoint(m_position.x() - 1, m_position.y() + 1));
+        possibleMove.append(QPoint(m_position.x() + 1, m_position.y()));
+        possibleMove.append(QPoint(m_position.x() - 1, m_position.y()));
+        possibleMove.append(QPoint(m_position.x(), m_position.y() - 1));
+        possibleMove.append(QPoint(m_position.x(), m_position.y() + 1));
+    case None:
+        break;
+    }
+
+    return possibleMove;
+    std::cout << "ok";
 }

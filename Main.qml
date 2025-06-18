@@ -1,0 +1,260 @@
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.VirtualKeyboard
+import Chess 1.0
+
+ApplicationWindow {
+    id: window
+    width: 640
+    height: 640
+    visible: true
+    title: qsTr("国际象棋棋盘")
+
+
+    property var selectedPiece: null
+    property var highlightedPositions: []
+    Component.onCompleted: console.log("Piece source: ", p.source)
+
+    // 虚拟键盘
+   /* InputPanel {
+        id: inputPanel
+        z: 99
+        x: 0
+        y: window.height
+        width: window.width
+
+        states: State {
+            name: "visible"
+            when: inputPanel.active
+            PropertyChanges {
+                target: inputPanel
+                y: window.height - inputPanel.height
+            }
+        }
+        transitions: Transition {
+            from: ""
+            to: "visible"
+            reversible: true
+            ParallelAnimation {
+                NumberAnimation {
+                    properties: "y"
+                    duration: 250
+                    easing.type: Easing.InOutQuad
+                }
+            }
+        }
+    }*/
+
+    // 菜单栏
+    menuBar: MenuBar {
+        Menu {
+            title: qsTr("游戏")
+            MenuItem {
+                text: qsTr("新游戏")
+                onTriggered: console.log("开始新游戏")
+            }
+            MenuItem {
+                text: qsTr("退出")
+                onTriggered: Qt.quit();
+            }
+        }
+        Menu {
+            title: qsTr("视图")
+            MenuItem {
+                text: qsTr("放大")
+                onTriggered: console.log("放大棋盘")
+            }
+            MenuItem {
+                text: qsTr("缩小")
+                onTriggered: console.log("缩小棋盘")
+            }
+        }
+        Menu {
+            title: qsTr("帮助")
+            MenuItem {
+                text: qsTr("关于")
+                onTriggered: aboutDialog.open()
+            }
+        }
+    }
+
+    // 主内容区 - 国际象棋棋盘
+    Rectangle {
+        anchors.fill: parent
+        color: "#f0d9b5"
+
+        // 棋盘网格
+        Grid {
+            id: chessGrid
+            anchors.centerIn: parent
+            width: Math.min(parent.width, parent.height) * 0.9
+            height: width
+            columns: 8
+            rows: 8
+
+
+            Repeater {
+                model: 64
+                Rectangle {
+                    property int row: Math.floor(index / 8)
+                    property int col: index % 8
+
+                    width: chessGrid.width / 8
+                    height: chessGrid.height / 8
+                    color: (row + col) % 2 === 0 ? "#f0d9b5" : "#b58863"
+
+                    // 坐标标签 - 行
+                    Text {
+                        visible: col === 0
+                        x: 2
+                        y: 2
+                        text: 8 - row
+                        font.pixelSize: 12
+                        font.bold: true
+                        color: "#5d432c"
+                    }
+
+                    // 坐标标签 - 列
+                    Text {
+                        visible: row === 7
+                        x: parent.width - width - 2
+                        y: parent.height - height - 2
+                        text: String.fromCharCode(97 + col)
+                        font.pixelSize: 12
+                        font.bold: true
+                        color: "#5d432c"
+                    }
+                    Rectangle{
+                        width: chessGrid.width / 16
+                        height:width
+                        radius: width/2
+                        color:"yellow"
+                        opacity: 0.5
+                        visible: window.highlightedPositions.some(pos =>
+                            pos.x === col && pos.y === row)
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                // 如果已经有选中的棋子
+                                if (window.selectedPiece) {
+                                    // 检查是否点击了高亮位置
+                                    const isHighlighted = window.highlightedPositions.some(pos =>
+                                        pos.x === col && pos.y === row);
+
+                                    if (isHighlighted) {
+                                        // 移动棋子到新位置
+                                        window.selectedPiece.go(col, row);
+                                        // 清除高亮
+                                        window.highlightedPositions = [];
+                                        window.selectedPiece = null;
+                                    } else {
+                                        // 如果点击了其他棋子，选中新棋子
+                                        window.selectedPiece = null;
+                                        window.highlightedPositions = [];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                }
+            }
+        }
+        // 棋子显示
+        /*
+        Repeater {
+            id: piecesRepeater
+            model: chessBoard.pieceCount()
+
+            delegate: Item {
+                property ChessPiece piece: chessBoard.pieceAt(index)*/
+
+
+        // 棋子显示 - 使用网格作为父对象
+        Repeater {
+                   model: chessBoard.pieces
+                   z: 1
+
+                   delegate: Item {
+                       // 计算棋子在网格中的位置
+                       property real cellWidth: chessGrid.width / 8
+                       property real cellHeight: chessGrid.height / 8
+
+                       x: chessGrid.x + modelData.x * cellWidth
+                       y: chessGrid.y + modelData.y * cellHeight
+                       width: cellWidth
+                       height: cellHeight
+
+                       // 棋子图片
+                       Image {
+                           id: pieceImage
+                           anchors.centerIn: parent
+                           width: parent.width * 0.8
+                           height: width
+                           source: getPieceSource(modelData.pieceType, modelData.isWhite)
+                           fillMode: Image.PreserveAspectFit
+
+                           // 添加调试信息
+                           onStatusChanged: {
+                               if (status === Image.Error) {
+                                   console.error("无法加载棋子图片: ", source, "错误:", errorString)
+                               } else if (status === Image.Ready) {
+                                   console.log("成功加载棋子图片: ", source)
+                               }
+                           }
+
+                           // 获取棋子资源路径
+                           function getPieceSource(type, isWhite) {
+                               const color = isWhite ? "white" : "black";
+                               switch(type) {
+                               case ChessPiece.Pawn:   return "pieces/pawn_" + color + ".png";
+                               case ChessPiece.Rook:   return "pieces/rook_" + color + ".png";
+                               case ChessPiece.Knight: return "pieces/knight_" + color + ".png";
+                               case ChessPiece.Bishop: return "pieces/bishop_" + color + ".png";
+                               case ChessPiece.Queen:  return "pieces/queen_" + color + ".png";
+                               case ChessPiece.King:   return "pieces/king_" + color + ".png";
+                               default: return "";
+                               }
+                           }
+                           MouseArea {
+                               anchors.fill: parent
+                               onClicked: {
+                                   console.log(model);
+                                 // 选中当前棋子
+                                   window.selectedPiece = model;
+                                 // 获取可移动位置
+                                   window.highlightedPositions = model.willGo();
+                               }
+                           }
+                       }
+                   }
+               }
+
+    // about
+    Dialog {
+        id: aboutDialog
+        title: "关于国际象棋"
+        anchors.centerIn: parent
+        modal: true
+
+        Label {
+            text: "国际象棋棋盘"
+            horizontalAlignment: Text.AlignHCenter
+        }
+
+        standardButtons: Dialog.Ok
+    }
+
+    // 状态栏
+    footer: ToolBar {
+        Label {
+            anchors.centerIn: parent
+            text: "开局"
+            font.italic: true
+        }
+    }
+
+
+}
+
