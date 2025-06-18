@@ -15,10 +15,25 @@ qt_add_qml_module(appChess
     VERSION 1.0
     SOURCES     main.cpp
     QML_FILES   Main.qml
-    SOURCES chessboard.h chessboard.cpp
-    SOURCES chesspiece.h chesspiece.cpp
-    SOURCES game.h game.cpp
-    RESOURCES Icons.qrc
+    QML_FILES
+
+SOURCES chessboard.h chessboard.cpp
+SOURCES chesspiece.h chesspiece.cpp
+RESOURCES pieces/bishop_white.png
+RESOURCES pieces/bishop_white.png
+RESOURCES pieces/bishop_black.png
+RESOURCES pieces/Chess.png
+RESOURCES pieces/king_black.png
+RESOURCES pieces/king_white.png
+RESOURCES pieces/knight_black.png
+RESOURCES pieces/knight_white.png
+RESOURCES pieces/pawn_black.png
+RESOURCES pieces/queen_black.png
+RESOURCES pieces/queen_white.png
+RESOURCES pieces/rook_black.png
+RESOURCES pieces/rook_white.png
+RESOURCES pieces/pawn_white.png
+
 )
 
 target_compile_features(appChess PRIVATE cxx_std_23)

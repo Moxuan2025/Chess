@@ -19,6 +19,11 @@ ChessPiece::ChessPiece(
     m_position = QPoint(x, y);
 }
 
+ChessPiece::Type ChessPiece::type() const
+{
+    return m_type;
+}
+
 QString ChessPiece::typeStr() const
 {
     switch (m_type) {

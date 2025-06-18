@@ -2,14 +2,17 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include "chessboard.h"
-#include "chessboard.h"
+#include <QResource>
 
 int main(int argc, char *argv[])
 {
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    //QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
+
+    // 注册资源文件
+    // Q_INIT_RESOURCE(licons);
 
     // 注册C++类型到QML
     qmlRegisterType<ChessPiece>("Chess", 1, 0, "ChessPiece");
