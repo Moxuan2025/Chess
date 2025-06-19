@@ -26,13 +26,22 @@ public:
 
     int x() const { return m_position.x(); }
     int y() const { return m_position.y(); }
+
     bool isWhite() const { return m_isWhite; }
     bool isCaptured() const { return m_captured; } // 被俘状态访问器gf
+    QPoint getPosition() { return m_position; }
+    QPoint getLastPosition() { return m_lastPosition; }
 
     Type type() const;
     QString typeStr() const;
 
-    Q_INVOKABLE void go(int newX, int newY);
+    void setEnPassantPoint(
+        QPoint p)
+    {
+        m_enPassantPoint = p;
+    }
+
+    Q_INVOKABLE void go(bool isPawn, int newX, int newY);
     Q_INVOKABLE void setCaptured(bool captured); // 设置被俘状态方法gf
     Q_INVOKABLE QList<QPoint> willGo();
     //...
@@ -41,8 +50,12 @@ signals:
     void positionChanged(); // 通知棋盘棋子位置改变
     void capturedChanged(); // 通知被俘状态改变gf
 private:
-    Type m_type;
-    bool m_isWhite;
-    QPoint m_position;
+    Type m_type;             //棋子类型
+    bool m_isWhite;          //阵营判断
+    QPoint m_position;       //当前位置
+    QPoint m_lastPosition{}; //上次位置
+
     bool m_captured = false; // 被俘状态gf
+
+    QPoint m_enPassantPoint = QPoint(-1, -1); //专门为小兵设计 初始化为无效点
 };

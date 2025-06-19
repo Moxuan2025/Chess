@@ -47,14 +47,27 @@ QString ChessPiece::typeStr() const
     }
 }
 
-void ChessPiece::go(int newX, int newY)
+void ChessPiece::go(
+    bool isPawn, int newX, int newY)
 {
+    ChessBoard *board = qobject_cast<ChessBoard *>(parent());
+
+    if (isPawn && board->getLsatPiece()) {
+        if (board->getLsatPiece()->m_enPassantPoint == QPoint(newX, newY))
+            board->getLsatPiece()->setCaptured(true);
+    }
+
+    m_lastPosition = m_position; //记录上次点位
+
     m_position.setX(newX);
     m_position.setY(newY);
     emit positionChanged();
     // 通知棋盘棋子已移动
-    ChessBoard *board = qobject_cast<ChessBoard *>(parent());
-    if (board) { board->pieceMoved(); }
+    if (board) {
+        board->pieceMoved();
+    }
+
+    //过路兵
 }
 
 //...
@@ -118,6 +131,29 @@ QList<QPoint> ChessPiece::willGo()
                 possibleMove.append(twoSteps); // 初始两步且路径畅通
             }
         }
+
+        //吃过路兵
+        //if (m_position.y() == enPassantRow) {
+        // 检查左右两侧是否有敌方兵
+        for (int dx : {-1, 1}) {
+            int x = m_position.x() + dx;
+            int y = m_position.y();
+
+            if (x >= 0 && x <= 7) {
+                ChessPiece *adjacentPiece = board->pieceAtPosition(x, y);
+
+                // 检查是否是敌方兵且刚移动两步
+                if (adjacentPiece && adjacentPiece->type() == Pawn
+                    && adjacentPiece->isWhite() != m_isWhite
+                    && (adjacentPiece == board->getLsatPiece())) {
+                    // 添加吃过路兵位置
+                    if (abs(adjacentPiece->m_position.y() - adjacentPiece->m_lastPosition.y()) == 2)
+                        possibleMove.append(QPoint(x, y + dir));
+                    //被吃过路兵捕获逻辑在go中
+                }
+            }
+        }
+        // }
 
         break;
     }

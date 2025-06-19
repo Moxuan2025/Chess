@@ -26,7 +26,14 @@ public:
     //...
 
     void printBoardState() const; /////////////
-        //
+
+    void setLastPiece(
+        ChessPiece *piece)
+    {
+        m_lastPiece = piece;
+    } //记录上次移动的棋子
+    ChessPiece *getLsatPiece() { return m_lastPiece; }
+    //
 signals:
     void piecesChanged();
     void turnChanged(); // 回合改变信号gf
@@ -38,4 +45,5 @@ private:
     // QList<std::unique_ptr<ChessPiece>> m_pieces;
     QList<ChessPiece *> m_pieces;
     bool m_isWhiteTurn = true; // 回合状态gf
+    ChessPiece *m_lastPiece = nullptr; //记录上次移动的棋子
 };

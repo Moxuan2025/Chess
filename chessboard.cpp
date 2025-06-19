@@ -1,4 +1,5 @@
 #include "chessboard.h"
+#include "chesspiece.h"
 #include <QVariant>
 #include <QDebug>
 ChessBoard::ChessBoard(QObject* parent) : QObject(parent)
@@ -191,21 +192,31 @@ void ChessBoard::movePiece(
     }
 
     // 移动当前棋子
-    piece->go(newX, newY);
+    //过路兵致命点设置
+    if (piece->type() == ChessPiece::Pawn) {
+        if (abs(newY - piece->y()) == 2)
+            piece->setEnPassantPoint(QPoint(piece->x(),
+                                            (newY + piece->y()) / 2)); //新坐标和旧坐标的平均数
+    }
+    piece->go((piece->type() == ChessPiece::Pawn), newX, newY);
+    setLastPiece(piece);
 
     // 切换回合
     switchTurn();
 
     emit pieceMoved();
-} /*
-ChessPiece* ChessBoard::pieceAtPosition(int x, int y) const
+}
+ChessPiece* ChessBoard::pieceAtPosition(
+    int x, int y) const
 {
     for (ChessPiece* piece : m_pieces) {
         // 跳过已被俘的棋子
         if (!piece->isCaptured() && piece->x() == x && piece->y() == y) { return piece; }
     }
     return nullptr;
-} */
+}
+
+/*
 ChessPiece* ChessBoard::pieceAtPosition(
     int x, int y) const
 {
@@ -225,7 +236,7 @@ ChessPiece* ChessBoard::pieceAtPosition(
 
     //qDebug() << "未找到棋子，共检查" << m_pieces.size() << "个棋子";
     return nullptr;
-}
+}*/
 
 /*
 void ChessBoard::printBoardState() const
