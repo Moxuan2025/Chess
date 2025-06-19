@@ -24,6 +24,9 @@ public:
     Q_INVOKABLE void setFirstMove(bool isWhite); // 设置先行方
     Q_INVOKABLE void movePiece(ChessPiece *piece, int newX, int newY); // 移动棋子方法
     //...
+
+    void printBoardState() const; /////////////
+        //
 signals:
     void piecesChanged();
     void turnChanged(); // 回合改变信号gf

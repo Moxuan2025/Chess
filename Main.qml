@@ -15,6 +15,7 @@ ApplicationWindow {
     property var selectedPiece: null
     property var highlightedPositions: []
     property bool isWhiteTurn: chessBoard.isWhiteTurn//gf
+    property var currentHighlight: null
   //  Component.onCompleted: console.log("Piece source: ", p.source)
 
     // 虚拟键盘
@@ -159,7 +160,8 @@ ApplicationWindow {
                                     // 在黄色圆点的点击事件中
                                     onClicked: {
                                         if (window.selectedPiece) {
-                                            // 使用正确的坐标系统
+                                        //  console.log("tap in heightlight");
+                                           window.currentHighlight = {x: col, y: row};
                                             chessBoard.movePiece(window.selectedPiece, col, row);
                                             window.highlightedPositions = [];
                                             window.selectedPiece = null;
@@ -170,7 +172,98 @@ ApplicationWindow {
                     }
                 }
             }
-        }
+
+            // 棋子显示 - 使用网格作为父对象
+            Repeater {
+                       model: chessBoard.pieces
+                       z: 100
+
+                       delegate: Item {
+                           visible: !modelData.captured
+                           // 计算棋子在网格中的位置
+                           property real cellWidth: chessGrid.width / 8
+                           property real cellHeight: chessGrid.height / 8
+
+                           x: chessGrid.x + modelData.x * cellWidth
+                           y: chessGrid.y + modelData.y * cellHeight
+                           width: cellWidth
+                           height: cellHeight
+
+                           // 棋子图片
+                           Image {
+                               id: pieceImage
+                               anchors.centerIn: parent
+                               width: parent.width * 0.8
+                               height: width
+                               source: getPieceSource(modelData.pieceType, modelData.isWhite)
+                               fillMode: Image.PreserveAspectFit
+
+                               /*调试信息
+                               onStatusChanged: {
+                                   if (status === Image.Error) {
+                                       console.error("无法加载棋子图片: ", source, "错误:", errorString)
+                                   } else if (status === Image.Ready) {
+                                       console.log("成功加载棋子图片: ", source)
+                                   }
+                               }*/
+
+                               // 获取棋子资源路径
+                               function getPieceSource(type, isWhite) {
+                                   const color = isWhite ? "white" : "black";
+                                   switch(type) {
+                                   case ChessPiece.Pawn:   return "qrc:/pieces/pawn_" + color + ".png";
+                                   case ChessPiece.Rook:   return "qrc:/pieces/rook_" + color + ".png";
+                                   case ChessPiece.Knight: return "qrc:/pieces/knight_" + color + ".png";
+                                   case ChessPiece.Bishop: return "qrc:/pieces/bishop_" + color + ".png";
+                                   case ChessPiece.Queen:  return "qrc:/pieces/queen_" + color + ".png";
+                                   case ChessPiece.King:   return "qrc:/pieces/king_" + color + ".png";
+                                   default: return "";
+                                   }
+                               }
+                              MouseArea {
+                                z:0
+                                   anchors.fill: parent
+                                   propagateComposedEvents: true
+                                   onClicked: {
+                                     //console.log("tap in chesspiece");
+                                     const isHighlightedPosition = window.highlightedPositions.some(pos =>
+                                                 pos.x === modelData.x && pos.y === modelData.y
+                                             );
+
+                                             if (isHighlightedPosition) {
+                                      // console.log("tap in both\n");
+                                       mouse.accepted = false;}
+                                     // 只能选择当前回合的棋子
+                                     if (modelData.isWhite === isWhiteTurn && !modelData.captured) {
+                                        window.selectedPiece = modelData;
+                                        window.highlightedPositions = modelData.willGo();
+
+                                       window.currentHighlight = null;
+                                          }
+                               }/*MouseArea {
+                                   anchors.fill: parent
+                                   onClicked: {
+                                       // 选中当前棋子
+                                       window.selectedPiece = model;
+
+                                       // 获取可移动位置并转换为 {x, y} 格式
+                                       var moves = modelData.willGo();
+                                       var positions = [];
+                                       for (var i = 0; i < moves.length; i++) {
+                                           positions.push({x: moves[i].x, y: moves[i].y});
+                                       }
+
+                                       window.highlightedPositions = positions;
+                                   }
+                               }*/
+                           }
+                       }
+                   }
+            }
+
+
+
+
         // 棋子显示
         /*
         Repeater {
@@ -181,81 +274,6 @@ ApplicationWindow {
                 property ChessPiece piece: chessBoard.pieceAt(index)*/
 
 
-        // 棋子显示 - 使用网格作为父对象
-        Repeater {
-                   model: chessBoard.pieces
-                   z: 2
-
-                   delegate: Item {
-                       visible: !modelData.captured
-                       // 计算棋子在网格中的位置
-                       property real cellWidth: chessGrid.width / 8
-                       property real cellHeight: chessGrid.height / 8
-
-                       x: chessGrid.x + modelData.x * cellWidth
-                       y: chessGrid.y + modelData.y * cellHeight
-                       width: cellWidth
-                       height: cellHeight
-
-                       // 棋子图片
-                       Image {
-                           id: pieceImage
-                           anchors.centerIn: parent
-                           width: parent.width * 0.8
-                           height: width
-                           source: getPieceSource(modelData.pieceType, modelData.isWhite)
-                           fillMode: Image.PreserveAspectFit
-
-                           /* 添加调试信息
-                           onStatusChanged: {
-                               if (status === Image.Error) {
-                                   console.error("无法加载棋子图片: ", source, "错误:", errorString)
-                               } else if (status === Image.Ready) {
-                                   console.log("成功加载棋子图片: ", source)
-                               }
-                           }*/
-
-                           // 获取棋子资源路径
-                           function getPieceSource(type, isWhite) {
-                               const color = isWhite ? "white" : "black";
-                               switch(type) {
-                               case ChessPiece.Pawn:   return "pieces/pawn_" + color + ".png";
-                               case ChessPiece.Rook:   return "pieces/rook_" + color + ".png";
-                               case ChessPiece.Knight: return "pieces/knight_" + color + ".png";
-                               case ChessPiece.Bishop: return "pieces/bishop_" + color + ".png";
-                               case ChessPiece.Queen:  return "pieces/queen_" + color + ".png";
-                               case ChessPiece.King:   return "pieces/king_" + color + ".png";
-                               default: return "";
-                               }
-                           }
-                          MouseArea {
-                            z:3
-                               anchors.fill: parent
-                               onClicked: {
-                                 // 只能选择当前回合的棋子
-                                 if (modelData.isWhite === isWhiteTurn && !modelData.captured) {
-                                    window.selectedPiece = modelData;
-                                    window.highlightedPositions = modelData.willGo();
-                                      }
-                           }/*MouseArea {
-                               anchors.fill: parent
-                               onClicked: {
-                                   // 选中当前棋子
-                                   window.selectedPiece = model;
-
-                                   // 获取可移动位置并转换为 {x, y} 格式
-                                   var moves = modelData.willGo();
-                                   var positions = [];
-                                   for (var i = 0; i < moves.length; i++) {
-                                       positions.push({x: moves[i].x, y: moves[i].y});
-                                   }
-
-                                   window.highlightedPositions = positions;
-                               }
-                           }*/
-                       }
-                   }
-               }
 
     // about
     Dialog {
@@ -280,6 +298,7 @@ ApplicationWindow {
             font.italic: true
         }
     }*/
+
 
 
 }

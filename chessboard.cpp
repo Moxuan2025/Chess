@@ -1,6 +1,6 @@
 #include "chessboard.h"
 #include <QVariant>
-
+#include <QDebug>
 ChessBoard::ChessBoard(QObject* parent) : QObject(parent)
 {
     initializeBoard();
@@ -132,7 +132,7 @@ QVariantList ChessBoard::pieces() const
         list.append(QVariant::fromValue(piece));
     }
     return list;
-}
+} /*
 void ChessBoard::movePiece(ChessPiece* piece, int newX, int newY)
 {
     if (!piece) return;
@@ -175,7 +175,29 @@ void ChessBoard::movePiece(ChessPiece* piece, int newX, int newY)
 
     // 通知QML棋子位置已更新
     emit piecesChanged();
-}
+}*/
+// ///////////////
+
+void ChessBoard::movePiece(
+    ChessPiece* piece, int newX, int newY)
+{
+    // 检查目标位置是否有棋子
+    ChessPiece* targetPiece = pieceAtPosition(newX, newY);
+    //  ChessPiece* targetPiece = piece;
+
+    // 如果目标位置有敌方棋子，则吃掉它
+    if (targetPiece) {
+        targetPiece->setCaptured(true);
+    }
+
+    // 移动当前棋子
+    piece->go(newX, newY);
+
+    // 切换回合
+    switchTurn();
+
+    emit pieceMoved();
+} /*
 ChessPiece* ChessBoard::pieceAtPosition(int x, int y) const
 {
     for (ChessPiece* piece : m_pieces) {
@@ -183,4 +205,82 @@ ChessPiece* ChessBoard::pieceAtPosition(int x, int y) const
         if (!piece->isCaptured() && piece->x() == x && piece->y() == y) { return piece; }
     }
     return nullptr;
+} */
+ChessPiece* ChessBoard::pieceAtPosition(
+    int x, int y) const
+{
+    //  qDebug() << "查找位置: (" << x << "," << y << ")";
+    int foundCount = 0;
+
+    for (ChessPiece* piece : m_pieces) {
+        // 检查位置匹配
+        if (!piece->isCaptured() && piece->x() == x && piece->y() == y) {
+            //qDebug() << "找到匹配棋子: " << piece->typeStr();
+            foundCount++;
+            //if (piece)
+            //  qDebug() << "OKOKOKinAt\n";
+            return piece;
+        }
+    }
+
+    //qDebug() << "未找到棋子，共检查" << m_pieces.size() << "个棋子";
+    return nullptr;
 }
+
+/*
+void ChessBoard::printBoardState() const
+{
+    // 创建8x8空棋盘
+    QString board[8][8];
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            board[y][x] = " - ";
+        }
+    }
+
+    // 用棋子填充棋盘
+    for (ChessPiece* piece : m_pieces) {
+        if (!piece->isCaptured()) {
+            int x = piece->x();
+            int y = piece->y();
+
+            QString symbol;
+            switch (piece->type()) {
+            case ChessPiece::Pawn:
+                symbol = "P";
+                break;
+            case ChessPiece::Rook:
+                symbol = "R";
+                break;
+            case ChessPiece::Knight:
+                symbol = "N";
+                break;
+            case ChessPiece::Bishop:
+                symbol = "B";
+                break;
+            case ChessPiece::Queen:
+                symbol = "Q";
+                break;
+            case ChessPiece::King:
+                symbol = "K";
+                break;
+            default:
+                symbol = "?";
+            }
+
+            // 添加颜色标记
+            symbol = piece->isWhite() ? symbol.toUpper() : symbol.toLower();
+            board[y][x] = " " + symbol + " ";
+        }
+    }
+
+    // 打印棋盘
+    qDebug() << "   a  b  c  d  e  f  g  h";
+    for (int y = 0; y < 8; y++) {
+        QString line = QString::number(8 - y) + " ";
+        for (int x = 0; x < 8; x++) {
+            line += board[y][x];
+        }
+        qDebug() << line;
+    }
+}*/

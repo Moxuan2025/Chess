@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9.9)
+cmake_minimum_required(VERSION 3.9.0)
 
 project(Chess VERSION 0.1 LANGUAGES CXX)
 
@@ -19,20 +19,9 @@ qt_add_qml_module(appChess
 
 SOURCES chessboard.h chessboard.cpp
 SOURCES chesspiece.h chesspiece.cpp
-RESOURCES pieces/bishop_white.png
-RESOURCES pieces/bishop_white.png
-RESOURCES pieces/bishop_black.png
-RESOURCES pieces/Chess.png
-RESOURCES pieces/king_black.png
-RESOURCES pieces/king_white.png
-RESOURCES pieces/knight_black.png
-RESOURCES pieces/knight_white.png
-RESOURCES pieces/pawn_black.png
-RESOURCES pieces/queen_black.png
-RESOURCES pieces/queen_white.png
-RESOURCES pieces/rook_black.png
-RESOURCES pieces/rook_white.png
-RESOURCES pieces/pawn_white.png
+RESOURCES Icons.qrc
+
+
 
 )
 
@@ -44,6 +33,7 @@ target_link_libraries(appChess
 )
 
 set_target_properties(appChess PROPERTIES
+    AUTORCC TRUE
 #    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.appChess
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
