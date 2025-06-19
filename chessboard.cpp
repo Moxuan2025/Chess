@@ -55,6 +55,7 @@ QVariantList ChessBoard::pieces()
     }
     return list;
 }*/
+
 void ChessBoard::capturePieceAt(int x, int y)
 {
     for (ChessPiece* pieces : m_pieces) {
@@ -111,6 +112,16 @@ void ChessBoard::initializeBoard()
     m_pieces.append(new ChessPiece(ChessPiece::Rook, true, 7, 7, this));
     for (int i = 0; i < 8; ++i) {
         m_pieces.append(new ChessPiece(ChessPiece::Pawn, true, i, 6, this));
+    }
+
+    for (ChessPiece* piece : m_pieces) {
+        if (piece->type() == ChessPiece::King) {
+            if (piece->isWhite()) {
+                m_whiteKing = piece;
+            } else {
+                m_blackKing = piece;
+            }
+        }
     }
 
     emit piecesChanged();
@@ -214,6 +225,31 @@ ChessPiece* ChessBoard::pieceAtPosition(
         if (!piece->isCaptured() && piece->x() == x && piece->y() == y) { return piece; }
     }
     return nullptr;
+}
+
+//检测王是否被攻击，iswhite为真则为白王，否则为黑王
+bool ChessBoard::isKingInCheck(
+    bool isWhite)
+{
+    ChessPiece* king = isWhite ? m_whiteKing : m_blackKing;
+    if (!king || king->isCaptured())
+        return false;
+
+    // 检查王的位置是否被对方棋子攻击
+    for (ChessPiece* piece : m_pieces) {
+        if (piece->isCaptured())
+            continue;
+        if (piece->isWhite() == isWhite)
+            continue; // 跳过己方棋子
+
+        QList<QPoint> moves = piece->willGo();
+        for (const QPoint& move : moves) {
+            if (move.x() == king->x() && move.y() == king->y()) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /*

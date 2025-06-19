@@ -20,6 +20,7 @@ qt_add_qml_module(appChess
 SOURCES chessboard.h chessboard.cpp
 SOURCES chesspiece.h chesspiece.cpp
 RESOURCES Icons.qrc
+QML_FILES CheckHighlight.qml
 
 
 

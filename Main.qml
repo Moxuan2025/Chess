@@ -11,11 +11,103 @@ ApplicationWindow {
     visible: true
     title: qsTr("国际象棋棋盘")
 
+    readonly property int gameStateOngoing: 0
+        readonly property int gameStateWhiteWins: 1
+        readonly property int gameStateBlackWins: 2
+        readonly property int gameStateDraw: 3
 
-    property var selectedPiece: null
-    property var highlightedPositions: []
-    property bool isWhiteTurn: chessBoard.isWhiteTurn//gf
-    property var currentHighlight: null
+
+
+    property var selectedPiece: null//当前选中的棋子
+    property var highlightedPositions: []//需要高亮的格子集合
+    property bool isWhiteTurn: chessBoard.isWhiteTurn//轮次
+    property var currentHighlight: null //高亮格子具体实现
+    property var checkHighlight: null  // 将军高亮标记
+        property int gameState: gameStateOngoing
+
+
+    function checkGameState() {
+        // 检查黑王是否存活
+        if (chessBoard.blackKing() && chessBoard.blackKing().captured) {
+            gameState = gameStateWhiteWins
+            settlementPanel.visible = true
+            return
+        }
+
+        // 检查白王是否存活
+        if (chessBoard.whiteKing() && chessBoard.whiteKing().captured) {
+            gameState = gameStateBlackWins
+            settlementPanel.visible = true
+            return
+        }
+
+        // 默认游戏继续
+        gameState = gameStateOngoing
+    }
+
+    // 检查并更新将军状态
+    function updateCheckState() {
+        // 清除旧的高亮
+        if (checkHighlight) {
+            checkHighlight.destroy()
+            checkHighlight = null
+        }
+
+        // 检查白王是否被将军
+        if (chessBoard.isKingInCheck(true)) {
+            var whiteKing = chessBoard.whiteKing()
+            if (whiteKing) {
+                createCheckHighlight(whiteKing.x, whiteKing.y)
+            }
+        }
+
+        // 检查黑王是否被将军
+        if (chessBoard.isKingInCheck(false)) {
+            var blackKing = chessBoard.blackKing()
+            if (blackKing) {
+                createCheckHighlight(blackKing.x, blackKing.y)
+            }
+        }
+    }
+
+    // 创建将军高亮标记
+       function createCheckHighlight(x, y) {
+           checkHighlight = checkHighlightComp.createObject(chessGrid, {
+               "xPos": x,
+               "yPos": y
+           })
+       }
+
+       // 内联组件定义 - 避免单独文件
+       Component {
+           id: checkHighlightComp
+           Rectangle {
+               property int xPos
+               property int yPos
+
+               // 精确位置计算 - 直接使用棋格尺寸
+               x: xPos * (parent.width / 8)
+               y: yPos * (parent.height / 8)
+               width: parent.width / 8
+               height: parent.height / 8
+               color: "red"
+               opacity: 0.3
+               z: 50
+           }
+       }
+
+       Connections {
+           target: chessBoard
+           function onPieceMoved() {
+               updateCheckState()
+               isWhiteTurn = chessBoard.isWhiteTurn // 更新回合显示
+               checkGameState()
+           }
+       }
+
+       Component.onCompleted: updateCheckState()
+
+
   //  Component.onCompleted: console.log("Piece source: ", p.source)
 
     // 虚拟键盘
@@ -99,7 +191,9 @@ ApplicationWindow {
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: 10
-        text: isWhiteTurn ? "白方回合" : "黑方回合"
+      //  text: isWhiteTurn ? "白方回合" : "黑方回合"
+        text: settlementPanel.visible ? "游戏结束" : (isWhiteTurn ? "白方回合" : "黑方回合")
+
         font.pixelSize: 20
         font.bold: true
         color: "#8b0000"
@@ -153,7 +247,7 @@ ApplicationWindow {
                         color:"yellow"
                         opacity: 0.5
                         anchors.centerIn: parent
-                        visible: window.highlightedPositions.some(pos =>
+                        visible: !settlementPanel.visible && window.highlightedPositions.some(pos =>
                             pos.x === col && pos.y === row)
                         MouseArea {
                                     anchors.fill: parent
@@ -264,6 +358,7 @@ ApplicationWindow {
 
 
 
+
         // 棋子显示
         /*
         Repeater {
@@ -289,6 +384,84 @@ ApplicationWindow {
 
         standardButtons: Dialog.Ok
     }
+    Rectangle {
+        id: settlementPanel
+        visible: false
+        width: parent.width * 0.8
+        height: parent.height * 0.7
+        anchors.centerIn: parent
+        radius: 20
+        color: "#f0f0f0"
+        border.color: "#8b4513"
+        border.width: 4
+
+
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 30
+            spacing: 30
+
+            // 标题
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: "游戏结束"
+                font.pixelSize: 48
+                font.bold: true
+                font.family: "Times New Roman"
+                color: "#8b4513"
+            }
+
+            // 胜负结果
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: settlementPanel.height * 0.5
+                // MODIFIED: 使用新的常量而不是枚举
+                color: {
+                    if (gameState === gameStateWhiteWins) return "#f0f0f0";
+                    else if (gameState === gameStateBlackWins) return "#222";
+                    else return "#e0e0e0"; // Draw
+                }
+                radius: 10
+                border.color: {
+                    if (gameState === gameStateWhiteWins) return "#8b4513";
+                    else if (gameState === gameStateBlackWins) return "#d3d3d3";
+                    else return "#808080"; // Draw
+                }
+                border.width: 4
+
+                Text {
+                    anchors.centerIn: parent
+                    // MODIFIED: 使用新的常量而不是枚举
+                    text: {
+                        if (gameState === gameStateWhiteWins) return "白方胜利!";
+                        else if (gameState === gameStateBlackWins) return "黑方胜利!";
+                        else return "平局!"; // Draw
+                    }
+                    font.pixelSize: 46
+                    font.bold: true
+                    color: {
+                        if (gameState === gameStateWhiteWins) return "#8b4513";
+                        else if (gameState === gameStateBlackWins) return "#f0f0f0";
+                        else return "#333"; // Draw
+                    }
+                }
+            }
+
+
+            Button {
+                Layout.alignment: Qt.AlignHCenter
+                text: "返回菜单栏"
+                font.pixelSize: 24
+                onClicked: {
+                    //To return Menu
+
+                }
+            }
+        }
+    }
+
+
 
     // 状态栏
     /*footer: ToolBar {
