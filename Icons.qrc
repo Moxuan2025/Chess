@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>pieces/bishop_black.png</file>
+        <file>pieces/bishop_white.png</file>
+        <file>pieces/Chess.png</file>
+        <file>pieces/king_black.png</file>
+        <file>pieces/king_white.png</file>
+        <file>pieces/knight_black.png</file>
+        <file>pieces/knight_white.png</file>
+        <file>pieces/pawn_black.png</file>
+        <file>pieces/pawn_white.png</file>
+        <file>pieces/queen_black.png</file>
+        <file>pieces/queen_white.png</file>
+        <file>pieces/rook_black.png</file>
+        <file>pieces/rook_white.png</file>
+        <file>GamePlay.qml</file>
+        <file>pieces/back.png</file>
+    </qresource>
+</RCC>
