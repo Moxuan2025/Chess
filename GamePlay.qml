@@ -28,6 +28,7 @@ ApplicationWindow {
     property int blackStepTime: 15 * 1000
     property bool timerActive: true
     property bool gameEnded: false
+    property bool showTimeSelection: true // 新增：控制时间选择界面的显示
 
     // 格式化时间显示
     function formatTime(ms) {
@@ -115,7 +116,7 @@ ApplicationWindow {
     Timer {
         id: gameTimer
         interval: 100
-        running: !gameEnded && timerActive
+        running: !gameEnded && timerActive && !showTimeSelection // 新增条件：不在时间选择界面时运行
         repeat: true
         onTriggered: {
             if (isWhiteTurn) {
@@ -129,56 +130,225 @@ ApplicationWindow {
         }
     }
 
-    // 菜单栏
-    menuBar: MenuBar {
-        Menu {
-            title: qsTr("游戏")
-            MenuItem {
-                text: qsTr("新游戏")
-                onTriggered: {
-                    chessBoard.initializeBoard()
-                    chessBoard.setFirstMove(true)
-                    gameEnded = false
-                    whiteTotalTime = 10 * 60 * 1000
-                    blackTotalTime = 10 * 60 * 1000
-                    resetStepTime()
-                    settlementPanel.visible = false
-                    gameState = gameStateOngoing
-                    timerActive = true
+    ToolBar {
+        id: gameToolBar
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: parent.width * 0.9
+        height: 50
+        position: ToolBar.Header
+
+        RowLayout {
+            anchors.fill: parent
+            spacing: 10
+
+            // 投降按钮
+            Button {
+                id: surrenderButton
+                text: "投降"
+                Layout.fillWidth: true
+                Layout.preferredHeight: 40
+                palette.buttonText: "white"
+
+                background: Rectangle {
+                    color: "#8b0000"  // 深红色
+                    radius: 5
+                    border.width: 1
+                    border.color: "#5a0000"
+                }
+
+                onClicked: {
+                    // 投降逻辑
+                    console.log("玩家选择投降")
+                    gameState = isWhiteTurn ? gameStateBlackWins : gameStateWhiteWins
+                    settlementPanel.visible = true
                 }
             }
-            MenuItem {
-                text: qsTr("暂停/继续")
-                onTriggered: timerActive = !timerActive
+
+            // 悔棋按钮
+            Button {
+                id: undoButton
+                text: "悔棋"
+                Layout.fillWidth: true
+                Layout.preferredHeight: 40
+                palette.buttonText: "white"
+
+                background: Rectangle {
+                    color: "dodgerblue"  // 道奇蓝
+                    radius: 5
+                    border.width: 1
+                    border.color: "royalblue"
+                }
+
+                onClicked: {
+                    // 悔棋逻辑
+                    // if (window.isWhiteTurn !== chessBoard.isWhiteTurn) {
+                               chessBoard.undoMove()
+                               window.selectedPiece = null
+                               window.highlightedPositions = []
+                               window.isWhiteTurn = chessBoard.isWhiteTurn
+                        // }
+                 }
             }
-            MenuItem {
-                text: qsTr("退出")
-                onTriggered: Qt.quit()
+
+            // 和棋按钮
+            Button {
+                id: drawButton
+                text: "和棋"
+                Layout.fillWidth: true
+                Layout.preferredHeight: 40
+                palette.buttonText: "white"
+
+                background: Rectangle {
+                    color: "limegreen"
+                    radius: 5
+                    border.width: 1
+                    border.color: "forestgreen"
+                }
+
+                onClicked: {
+                    // 和棋逻辑
+                    console.log("玩家请求和棋")
+                    gameState = gameStateDraw
+                    settlementPanel.visible = true
+                }
             }
         }
-        Menu {
-            title: qsTr("视图")
-            MenuItem {
-                text: qsTr("放大")
-                onTriggered: console.log("放大棋盘")
-            }
-            MenuItem {
-                text: qsTr("缩小")
-                onTriggered: console.log("缩小棋盘")
+    }
+
+
+    // 新增：时间选择界面
+    Rectangle {
+        id: timeSelection
+        visible: showTimeSelection
+
+        width: parent.width * 0.8
+        height: parent.height * 0.6
+
+        anchors.centerIn: parent
+
+        color: "orange"
+        z: 2000 // 确保在最上层
+
+        radius: 20
+        border.color: "orange"
+        border.width: 3
+
+
+        Rectangle {
+            id: innerContainer
+            anchors.fill: parent
+            anchors.margins: 20
+            color: "transparent"
+
+            ColumnLayout {
+                anchors.centerIn: parent
+                spacing: 30
+
+                Text {
+                    text: "选择计时模式"
+                    font.pixelSize: 32
+                    font.bold: true
+                    Layout.alignment: Qt.AlignHCenter
+                    color: "black"
+                }
+
+                // 20分钟 + 20秒模式
+                Button {
+                    text: "20分钟 + 20秒/步"
+                    font.pixelSize: 20
+                    Layout.preferredWidth: 300
+                    Layout.preferredHeight: 60
+                    palette.buttonText: "black"
+                    onClicked: {
+                        whiteTotalTime = 20 * 60 * 1000
+                        blackTotalTime = 20 * 60 * 1000
+                        whiteStepTime = 20 * 1000
+                        blackStepTime = 20 * 1000
+                        showTimeSelection = false
+
+                        startNewGame(false)
+                    }
+
+                    background: Rectangle {
+                        color: parent.down ? "orange":"lightgrey"
+                        border.color: "#8b4513"
+                        border.width: 2
+                        radius: 10
+                    }
+                }
+
+                // 25分钟 + 25秒模式
+                Button {
+                    text: "25分钟 + 25秒/步"
+                    font.pixelSize: 20
+                    Layout.preferredWidth: 300
+                    Layout.preferredHeight: 60
+                    palette.buttonText: "black"
+                    onClicked: {
+                        whiteTotalTime = 25 * 60 * 1000
+                        blackTotalTime = 25 * 60 * 1000
+                        whiteStepTime = 25 * 1000
+                        blackStepTime = 25 * 1000
+                        showTimeSelection = false
+
+                        startNewGame(false)
+                    }
+
+                    background: Rectangle {
+                        // color: parent.down ? "black":"lightgrey"
+                        color: parent.down ? "orange":"lightgrey"
+                        border.color: "#8b4513"
+                        border.width: 2
+                        radius: 10
+                    }
+                }
+
+                // 30分钟 + 30秒模式
+                Button {
+                    text: "30分钟 + 30秒/步"
+                    font.pixelSize: 20
+                    Layout.preferredWidth: 300
+                    Layout.preferredHeight: 60
+                    palette.buttonText: "black"
+                    onClicked: {
+                        whiteTotalTime = 30 * 60 * 1000
+                        blackTotalTime = 30 * 60 * 1000
+                        whiteStepTime = 30 * 1000
+                        blackStepTime = 30 * 1000
+                        showTimeSelection = false
+
+                        startNewGame(false)
+                    }
+
+                    background: Rectangle {
+                        // color: parent.down ? "black":"lightgrey"
+                        color: parent.down ? "orange":"lightgrey"
+                        border.color: "#8b4513"
+                        border.width: 2
+                        radius: 10
+                    }
+                }
             }
         }
-        Menu {
-            title: qsTr("帮助")
-            MenuItem {
-                text: qsTr("关于")
-                onTriggered: aboutDialog.open()
-            }
+    }
+
+
+    function startNewGame(initBoard) {
+        if (initBoard) {
+            chessBoard.initializeBoard()
         }
+        chessBoard.setFirstMove(true)
+        gameEnded = false
+        settlementPanel.visible = false
+        gameState = gameStateOngoing
+        timerActive = true
     }
 
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
+        visible: !showTimeSelection // 只在非时间选择界面显示
 
         // 顶部布局 - 黑方倒计时和回合指示器
         RowLayout {
@@ -331,14 +501,6 @@ ApplicationWindow {
                         y: chessGrid.y + modelData.y * cellHeight
                         width: cellWidth
                         height: cellHeight
-                        /*调试信息
-                        onStatusChanged: {
-                            if (status === Image.Error) {
-                                console.error("无法加载棋子图片: ", source, "错误:", errorString)
-                            } else if (status === Image.Ready) {
-                                console.log("成功加载棋子图片: ", source)
-                            }
-                        }*/
 
                         // 棋子图片
                         Image {
@@ -508,27 +670,13 @@ ApplicationWindow {
                 text: "返回菜单"
                 font.pixelSize: 24
                 onClicked: {
-                    chessBoard.initializeBoard()
-                    chessBoard.setFirstMove(true)
-                    gameEnded = false
-                    whiteTotalTime = 10 * 60 * 1000
-                    blackTotalTime = 10 * 60 * 1000
-                    resetStepTime()
+                    showTimeSelection = true
                     settlementPanel.visible = false
-                    gameState = gameStateOngoing
-                    timerActive = true
                 }
             }
         }
     }
-    // 棋子显示
-    /*
-    Repeater {
-        id: piecesRepeater
-        model: chessBoard.pieceCount()
 
-        delegate: Item {
-            property ChessPiece piece: chessBoard.pieceAt(index)*/
     // 关于对话框
     Dialog {
         id: aboutDialog
@@ -537,7 +685,7 @@ ApplicationWindow {
         modal: true
 
         contentItem: Label {
-            text: "国际象棋游戏\n版本 1.0\n© 2023"
+            text: "国际象棋游戏\n版本 1.0\n© 2025"
             horizontalAlignment: Text.AlignHCenter
             font.pixelSize: 18
         }
@@ -560,15 +708,10 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        updateCheckState()
         chessBoard.initializeBoard()
+        updateCheckState()
+
+
+        showTimeSelection = true
     }
-    // 状态栏
-    /*footer: ToolBar {
-        Label {
-            anchors.centerIn: parent
-            text: "开局"
-            font.italic: true
-        }
-    }*/
 }

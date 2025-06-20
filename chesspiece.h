@@ -40,6 +40,7 @@ public:
     {
         m_enPassantPoint = p;
     }
+    void clearEnPassantPoint() { QPoint m_enPassantPoint = QPoint(-1, -1); }
 
     Q_INVOKABLE void go(bool isPawn, int newX, int newY);
     Q_INVOKABLE void setCaptured(bool captured); // 设置被俘状态方法gf

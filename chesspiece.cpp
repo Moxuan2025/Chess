@@ -52,9 +52,11 @@ void ChessPiece::go(
 {
     ChessBoard *board = qobject_cast<ChessBoard *>(parent());
 
+    //过路兵
     if (isPawn && board->getLsatPiece()) {
         if (board->getLsatPiece()->m_enPassantPoint == QPoint(newX, newY))
             board->getLsatPiece()->setCaptured(true);
+        ////record.capturedPiece = board->getLsatPiece();
     }
 
     m_lastPosition = m_position; //记录上次点位
@@ -66,8 +68,6 @@ void ChessPiece::go(
     if (board) {
         board->pieceMoved();
     }
-
-    //过路兵
 }
 
 //...

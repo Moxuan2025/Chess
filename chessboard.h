@@ -4,6 +4,18 @@
 #include <QObject>
 #include <QList>
 #include <QVariant>
+#include <QStack>
+
+//记录棋子行走，便于悔棋
+struct MoveRecord
+{
+    ChessPiece *piece;           // 被移动的棋子
+    QPoint oldPosition;          // 移动前的位置
+    ChessPiece *capturedPiece;   // 被吃掉的棋子（如果有）
+    QPoint enPassantPointBefore; // 移动前的过路兵标记
+    bool wasCaptured;            // 被吃掉的棋子原先的捕获状态
+};
+
 class ChessBoard : public QObject
 {
     Q_OBJECT
@@ -13,6 +25,9 @@ public:
     explicit ChessBoard(QObject *parent = nullptr);
     ChessPiece *pieceAtPosition(int x, int y) const;
     ~ChessBoard();
+
+    Q_INVOKABLE void undoMove(); //悔棋
+
     //检测将军
     Q_INVOKABLE bool isKingInCheck(bool isWhite);
     Q_INVOKABLE ChessPiece *whiteKing() const { return m_whiteKing; }
@@ -58,4 +73,6 @@ private:
     QList<ChessPiece *> m_pieces;
     bool m_isWhiteTurn = true; // 回合状态gf
     ChessPiece *m_lastPiece = nullptr; //记录上次移动的棋子
+
+    QStack<MoveRecord> m_moveHistory;
 };

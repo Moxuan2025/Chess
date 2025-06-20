@@ -80,6 +80,8 @@ void ChessBoard::switchTurn()
 
 void ChessBoard::initializeBoard()
 {
+    m_moveHistory.clear();
+    m_lastPiece = nullptr;
     // 清空现有棋子
     for (ChessPiece* piece : m_pieces) {
         delete piece;
@@ -190,9 +192,50 @@ void ChessBoard::movePiece(ChessPiece* piece, int newX, int newY)
 }*/
 // ///////////////
 
+// 实现悔棋功能
+void ChessBoard::undoMove()
+{
+    if (m_moveHistory.isEmpty())
+        return;
+
+    // 弹出最后一步记录
+    MoveRecord record = m_moveHistory.pop();
+
+    // 恢复棋子位置
+    record.piece->go(false, record.oldPosition.x(), record.oldPosition.y());
+
+    // 恢复过路兵标记
+    record.piece->setEnPassantPoint(record.enPassantPointBefore);
+
+    // 恢复被吃掉的棋子
+    if (record.capturedPiece) {
+        record.capturedPiece->setCaptured(record.wasCaptured);
+    }
+
+    // 切换回合（回到上一步的回合）
+    switchTurn();
+
+    // 更新最后移动棋子指针
+    m_lastPiece = m_moveHistory.isEmpty() ? nullptr : m_moveHistory.top().piece;
+
+    // 通知界面更新
+    emit piecesChanged();
+    emit pieceMoved();
+}
+
 void ChessBoard::movePiece(
     ChessPiece* piece, int newX, int newY)
 {
+    // 创建历史记录
+    MoveRecord record;
+    record.piece = piece;
+    record.oldPosition = piece->getPosition();
+    record.capturedPiece = pieceAtPosition(newX, newY);
+    record.wasCaptured = record.capturedPiece ? record.capturedPiece->isCaptured() : false;
+
+    // 保存历史记录
+    m_moveHistory.push(record);
+
     // 检查目标位置是否有棋子
     ChessPiece* targetPiece = pieceAtPosition(newX, newY);
     //  ChessPiece* targetPiece = piece;
