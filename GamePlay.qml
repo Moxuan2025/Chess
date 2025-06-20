@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
+import QtMultimedia
 
 ApplicationWindow {
     id: window
@@ -28,7 +30,15 @@ ApplicationWindow {
     property int blackStepTime: 15 * 1000
     property bool timerActive: true
     property bool gameEnded: false
-    property bool showTimeSelection: true // 新增：控制时间选择界面的显示
+    property bool showTimeSelection: true
+
+    // 音效属性 - 只保留移动音效
+    property bool soundEnabled: true
+    SoundEffect {
+        id: moveSound
+        source: "qrc:/pieces/move.wav"     // 移动音效
+        volume: soundEnabled ? 1.0 : 0.0
+    }
 
     // 格式化时间显示
     function formatTime(ms) {
@@ -130,6 +140,7 @@ ApplicationWindow {
         }
     }
 
+    // 工具栏 - 包含投降、悔棋、和棋按钮
     ToolBar {
         id: gameToolBar
         anchors.top: parent.top
@@ -182,13 +193,13 @@ ApplicationWindow {
 
                 onClicked: {
                     // 悔棋逻辑
-                    // if (window.isWhiteTurn !== chessBoard.isWhiteTurn) {
-                               chessBoard.undoMove()
-                               window.selectedPiece = null
-                               window.highlightedPositions = []
-                               window.isWhiteTurn = chessBoard.isWhiteTurn
-                        // }
-                 }
+                    if (chessBoard.undoMove) {
+                        chessBoard.undoMove()
+                        window.selectedPiece = null
+                        window.highlightedPositions = []
+                        window.isWhiteTurn = chessBoard.isWhiteTurn
+                    }
+                }
             }
 
             // 和棋按钮
@@ -213,140 +224,36 @@ ApplicationWindow {
                     settlementPanel.visible = true
                 }
             }
-        }
-    }
 
+            // 音效开关按钮
+            Button {
+                id: soundButton
+                text: soundEnabled ? "🔊" : "🔇"
+                Layout.preferredWidth: 40
+                Layout.preferredHeight: 40
+                palette.buttonText: "white"
 
-    // 新增：时间选择界面
-    Rectangle {
-        id: timeSelection
-        visible: showTimeSelection
-
-        width: parent.width * 0.8
-        height: parent.height * 0.6
-
-        anchors.centerIn: parent
-
-        color: "orange"
-        z: 2000 // 确保在最上层
-
-        radius: 20
-        border.color: "orange"
-        border.width: 3
-
-
-        Rectangle {
-            id: innerContainer
-            anchors.fill: parent
-            anchors.margins: 20
-            color: "transparent"
-
-            ColumnLayout {
-                anchors.centerIn: parent
-                spacing: 30
-
-                Text {
-                    text: "选择计时模式"
-                    font.pixelSize: 32
-                    font.bold: true
-                    Layout.alignment: Qt.AlignHCenter
-                    color: "black"
+                background: Rectangle {
+                    color: "#555555"
+                    radius: 5
+                    border.width: 1
+                    border.color: "#333333"
                 }
 
-                // 20分钟 + 20秒模式
-                Button {
-                    text: "20分钟 + 20秒/步"
-                    font.pixelSize: 20
-                    Layout.preferredWidth: 300
-                    Layout.preferredHeight: 60
-                    palette.buttonText: "black"
-                    onClicked: {
-                        whiteTotalTime = 20 * 60 * 1000
-                        blackTotalTime = 20 * 60 * 1000
-                        whiteStepTime = 20 * 1000
-                        blackStepTime = 20 * 1000
-                        showTimeSelection = false
-
-                        startNewGame(false)
-                    }
-
-                    background: Rectangle {
-                        color: parent.down ? "orange":"lightgrey"
-                        border.color: "#8b4513"
-                        border.width: 2
-                        radius: 10
-                    }
-                }
-
-                // 25分钟 + 25秒模式
-                Button {
-                    text: "25分钟 + 25秒/步"
-                    font.pixelSize: 20
-                    Layout.preferredWidth: 300
-                    Layout.preferredHeight: 60
-                    palette.buttonText: "black"
-                    onClicked: {
-                        whiteTotalTime = 25 * 60 * 1000
-                        blackTotalTime = 25 * 60 * 1000
-                        whiteStepTime = 25 * 1000
-                        blackStepTime = 25 * 1000
-                        showTimeSelection = false
-
-                        startNewGame(false)
-                    }
-
-                    background: Rectangle {
-                        // color: parent.down ? "black":"lightgrey"
-                        color: parent.down ? "orange":"lightgrey"
-                        border.color: "#8b4513"
-                        border.width: 2
-                        radius: 10
-                    }
-                }
-
-                // 30分钟 + 30秒模式
-                Button {
-                    text: "30分钟 + 30秒/步"
-                    font.pixelSize: 20
-                    Layout.preferredWidth: 300
-                    Layout.preferredHeight: 60
-                    palette.buttonText: "black"
-                    onClicked: {
-                        whiteTotalTime = 30 * 60 * 1000
-                        blackTotalTime = 30 * 60 * 1000
-                        whiteStepTime = 30 * 1000
-                        blackStepTime = 30 * 1000
-                        showTimeSelection = false
-
-                        startNewGame(false)
-                    }
-
-                    background: Rectangle {
-                        // color: parent.down ? "black":"lightgrey"
-                        color: parent.down ? "orange":"lightgrey"
-                        border.color: "#8b4513"
-                        border.width: 2
-                        radius: 10
-                    }
+                onClicked: {
+                    soundEnabled = !soundEnabled
                 }
             }
         }
     }
 
-
-    function startNewGame(initBoard) {
-        if (initBoard) {
-            chessBoard.initializeBoard()
-        }
-        chessBoard.setFirstMove(true)
-        gameEnded = false
-        settlementPanel.visible = false
-        gameState = gameStateOngoing
-        timerActive = true
-    }
-
+    // 主游戏区域
     ColumnLayout {
-        anchors.fill: parent
+        anchors.top: gameToolBar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 10
         spacing: 10
         visible: !showTimeSelection // 只在非时间选择界面显示
 
@@ -477,6 +384,10 @@ ApplicationWindow {
                                     if (window.selectedPiece && !gameEnded) {
                                         window.currentHighlight = {x: col, y: row}
                                         chessBoard.movePiece(window.selectedPiece, col, row)
+
+                                        // 播放移动音效
+                                        moveSound.play()
+
                                         window.highlightedPositions = []
                                         window.selectedPiece = null
                                         resetStepTime()
@@ -584,6 +495,148 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    // 时间选择界面（已添加背景图片）
+    Rectangle {
+        id: timeSelection
+        visible: showTimeSelection
+
+        width: parent.width * 0.8
+        height: parent.height * 0.6
+
+        anchors.centerIn: parent
+        color: "transparent"  // 将背景改为透明
+        z: 2000 // 确保在最上层
+
+        radius: 20
+
+        // 背景图片
+        Image {
+            anchors.fill: parent
+            source: "qrc:/pieces/back.jpg"  // 替换为您的图片路径
+            fillMode: Image.PreserveAspectCrop
+            opacity: 0.9
+            layer.enabled: true
+            layer.effect: OpacityMask {
+                maskSource: Rectangle {
+                    width: timeSelection.width
+                    height: timeSelection.height
+                    radius: timeSelection.radius
+                }
+            }
+        }
+
+        // 边框
+        Rectangle {
+            anchors.fill: parent
+            color: "transparent"
+            radius: parent.radius
+            border.color: "#8b4513"
+            border.width: 3
+        }
+
+        Rectangle {
+            id: innerContainer
+            anchors.fill: parent
+            anchors.margins: 20
+            color: "transparent"
+
+            ColumnLayout {
+                anchors.centerIn: parent
+                spacing: 30
+
+                Text {
+                    text: "选择计时模式"
+                    font.pixelSize: 32
+                    font.bold: true
+                    Layout.alignment: Qt.AlignHCenter
+                    color: "#f0f0f0"
+                    style: Text.Outline
+                    styleColor: "#8b4513"
+                }
+
+                // 20分钟 + 20秒模式
+                Button {
+                    text: "20分钟 + 20秒/步"
+                    font.pixelSize: 20
+                    Layout.preferredWidth: 300
+                    Layout.preferredHeight: 60
+                    onClicked: {
+                        whiteTotalTime = 20 * 60 * 1000
+                        blackTotalTime = 20 * 60 * 1000
+                        whiteStepTime = 20 * 1000
+                        blackStepTime = 20 * 1000
+                        showTimeSelection = false
+                        startNewGame(false)
+                    }
+
+                    background: Rectangle {
+                        color: parent.down ? "#d3d3d3" : "#f0f0f0"
+                        border.color: "#8b4513"
+                        border.width: 2
+                        radius: 10
+                    }
+                }
+
+                // 25分钟 + 25秒模式
+                Button {
+                    text: "25分钟 + 25秒/步"
+                    font.pixelSize: 20
+                    Layout.preferredWidth: 300
+                    Layout.preferredHeight: 60
+                    onClicked: {
+                        whiteTotalTime = 25 * 60 * 1000
+                        blackTotalTime = 25 * 60 * 1000
+                        whiteStepTime = 25 * 1000
+                        blackStepTime = 25 * 1000
+                        showTimeSelection = false
+                        startNewGame(false)
+                    }
+
+                    background: Rectangle {
+                        color: parent.down ? "#d3d3d3" : "#f0f0f0"
+                        border.color: "#8b4513"
+                        border.width: 2
+                        radius: 10
+                    }
+                }
+
+                // 30分钟 + 30秒模式
+                Button {
+                    text: "30分钟 + 30秒/步"
+                    font.pixelSize: 20
+                    Layout.preferredWidth: 300
+                    Layout.preferredHeight: 60
+                    onClicked: {
+                        whiteTotalTime = 30 * 60 * 1000
+                        blackTotalTime = 30 * 60 * 1000
+                        whiteStepTime = 30 * 1000
+                        blackStepTime = 30 * 1000
+                        showTimeSelection = false
+                        startNewGame(false)
+                    }
+
+                    background: Rectangle {
+                        color: parent.down ? "#d3d3d3" : "#f0f0f0"
+                        border.color: "#8b4513"
+                        border.width: 2
+                        radius: 10
+                    }
+                }
+            }
+        }
+    }
+
+    function startNewGame(initBoard) {
+        if (initBoard) {
+            chessBoard.initializeBoard()
+        }
+        chessBoard.setFirstMove(true)
+        gameEnded = false
+        settlementPanel.visible = false
+        gameState = gameStateOngoing
+        timerActive = true
     }
 
     // 将军高亮组件
@@ -710,8 +763,6 @@ ApplicationWindow {
     Component.onCompleted: {
         chessBoard.initializeBoard()
         updateCheckState()
-
-
         showTimeSelection = true
     }
 }

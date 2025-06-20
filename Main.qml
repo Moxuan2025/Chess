@@ -68,7 +68,7 @@ ApplicationWindow {
                 Image {
                     id: background
                     anchors.fill: parent
-                    source: "qrc:/pieces/back.png"
+                    source: "qrc:/pieces/back.jpg"
                     fillMode: Image.PreserveAspectCrop
                     opacity: 0.7
                 }
