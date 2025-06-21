@@ -22,6 +22,7 @@ class ChessBoard : public QObject
     Q_PROPERTY(QVariantList pieces READ pieces NOTIFY piecesChanged)
     Q_PROPERTY(bool isWhiteTurn READ isWhiteTurn NOTIFY turnChanged) // 回合属性gf
 public:
+    Q_INVOKABLE void initializeBoard();
     explicit ChessBoard(QObject *parent = nullptr);
     ChessPiece *pieceAtPosition(int x, int y) const;
     ~ChessBoard();
@@ -66,7 +67,6 @@ private:
     // 添加将军检查方法
     bool isPositionUnderAttack(int x, int y, bool byWhite);
 
-    void initializeBoard();
     void switchTurn(); // 切换回合gf
 
     // QList<std::unique_ptr<ChessPiece>> m_pieces;

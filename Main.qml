@@ -16,40 +16,6 @@ ApplicationWindow {
         id: stackView
         anchors.fill: parent
         initialItem: mainMenu
-
-        // 页面切换动画
-        pushEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to: 1
-                duration: 300
-            }
-        }
-        pushExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to: 0
-                duration: 300
-            }
-        }
-        popEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to: 1
-                duration: 300
-            }
-        }
-        popExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to: 0
-                duration: 300
-            }
-        }
     }
 
     // ==================== 主菜单页面 ====================
@@ -98,7 +64,6 @@ ApplicationWindow {
 
                 Button {
                        id: startButton
-                       // 图标路径: "qrc:/pieces/play_icon.png"
                        Layout.preferredWidth: 250
                        Layout.preferredHeight: 70
                        Layout.alignment: Qt.AlignHCenter
@@ -138,10 +103,9 @@ ApplicationWindow {
                        }
                    }
 
-                   // 连接按钮 (添加图标)
+                   // 连接按钮
                    Button {
                        id: connectButton
-                       // 图标路径: "qrc:/pieces/connect_icon.png"
                        Layout.preferredWidth: 250
                        Layout.preferredHeight: 70
                        Layout.alignment: Qt.AlignHCenter
@@ -181,10 +145,9 @@ ApplicationWindow {
                        }
                    }
 
-                   // 设置按钮 (添加图标)
+                   // 设置按钮
                    Button {
                        id: settingsButton
-                       // 图标路径: "qrc:/pieces/settings_icon.png"
                        Layout.preferredWidth: 250
                        Layout.preferredHeight: 70
                        Layout.alignment: Qt.AlignHCenter
@@ -223,7 +186,7 @@ ApplicationWindow {
                        }
                    }
 
-                   // 退出游戏按钮 (添加图标)
+                   // 退出游戏按钮
                    Button {
                        id: exitButton
                        Layout.preferredWidth: 250
@@ -282,7 +245,6 @@ ApplicationWindow {
     //
     Component {id: connectPage;ConnectPages{}}
     Component {id: gamePlay;GamePlay{}}
-    // ... [文件头部代码保持不变] ...
 
     // ==================== 设置页面 ====================
     Component {
@@ -359,7 +321,6 @@ ApplicationWindow {
                 }
             }
 
-            // 显示未开发提示
             function showFeatureDialog() {
                 if (!isDialogOpen) {
                     isDialogOpen = true
@@ -500,7 +461,6 @@ ApplicationWindow {
                                 }
                             }
 
-                            // 添加状态改变处理
                             onCheckedChanged: {
                                 showFeatureDialog()
                             }
@@ -521,7 +481,6 @@ ApplicationWindow {
                     spacing: 20
                     Layout.fillWidth: true
 
-                    // 其他设置标题
                     Text {
                         text: "其他设置"
                         font.pixelSize: 28
