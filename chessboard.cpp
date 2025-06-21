@@ -231,6 +231,13 @@ void ChessBoard::movePiece(
     record.piece = piece;
     record.oldPosition = piece->getPosition();
     record.capturedPiece = pieceAtPosition(newX, newY);
+    //将被吃的过路兵添加到历史记录
+    if (piece->type() == ChessPiece::Pawn && this->getLsatPiece()) {
+        if (this->getLsatPiece()->getEnPassantPoint() == QPoint(newX, newY))
+            record.capturedPiece = this->getLsatPiece();
+        ;
+    }
+
     record.wasCaptured = record.capturedPiece ? record.capturedPiece->isCaptured() : false;
 
     // 保存历史记录
