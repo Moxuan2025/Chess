@@ -40,6 +40,7 @@ public:
     {
         m_enPassantPoint = p;
     }
+    QPoint getEnPassantPoint() { return m_enPassantPoint; }
     void clearEnPassantPoint() { QPoint m_enPassantPoint = QPoint(-1, -1); }
 
     Q_INVOKABLE void go(bool isPawn, int newX, int newY);
