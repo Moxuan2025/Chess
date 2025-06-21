@@ -649,7 +649,6 @@ ApplicationWindow {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    // 使用 TapHandler 替换 MouseArea
                     TapHandler {
                         onTapped: {
                             whiteTotalTime = 20 * 60 * 1000
@@ -725,7 +724,6 @@ ApplicationWindow {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    // 使用 TapHandler 替换 MouseArea
                     TapHandler {
                         onTapped: {
                             whiteTotalTime = 30 * 60 * 1000

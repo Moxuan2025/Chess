@@ -23,5 +23,9 @@
         <file>pieces/wlan.png</file>
         <file>pieces/connect.png</file>
         <file>pieces/touxiang.png</file>
+        <file>pieces/exit.png</file>
+        <file>pieces/setting.png</file>
+        <file>pieces/start.png</file>
+        <file>pieces/warning.png</file>
     </qresource>
 </RCC>
