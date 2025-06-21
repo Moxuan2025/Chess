@@ -22,6 +22,7 @@ SOURCES chesspiece.h chesspiece.cpp
 RESOURCES Icons.qrc
 QML_FILES GamePlay.qml
 QML_FILES ConnectPages.qml
+RESOURCES pieces/connect.png
 
 
 

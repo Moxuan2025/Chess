@@ -15,7 +15,13 @@
         <file>pieces/rook_white.png</file>
         <file>GamePlay.qml</file>
         <file>pieces/move.wav</file>
-<!--         <file>../pieces/back.jpg</file> -->
         <file>pieces/back.jpg</file>
+        <file>pieces/about.png</file>
+        <file>pieces/draw.png</file>
+        <file>pieces/takeback.png</file>
+        <file>pieces/NFC.png</file>
+        <file>pieces/wlan.png</file>
+        <file>pieces/connect.png</file>
+        <file>pieces/touxiang.png</file>
     </qresource>
 </RCC>

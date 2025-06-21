@@ -153,10 +153,8 @@ ApplicationWindow {
             anchors.fill: parent
             spacing: 10
 
-            // 投降按钮
             Button {
                 id: surrenderButton
-                text: "投降"
                 Layout.fillWidth: true
                 Layout.preferredHeight: 40
                 palette.buttonText: "white"
@@ -168,6 +166,29 @@ ApplicationWindow {
                     border.color: "#5a0000"
                 }
 
+                // 自定义内容区域
+                contentItem: Row {
+                    spacing: 8
+                    anchors.centerIn: parent
+
+                    // 投降图标
+                    Image {
+                        source: "qrc:/pieces/touxiang.png"
+                        width: 24
+                        height: 24
+                        fillMode: Image.PreserveAspectFit
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    // 投降文本
+                    Text {
+                        text: "投降"
+                        color: "white"
+                        font.pixelSize: 16
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
                 onClicked: {
                     // 投降逻辑
                     console.log("玩家选择投降")
@@ -176,10 +197,10 @@ ApplicationWindow {
                 }
             }
 
+
             // 悔棋按钮
             Button {
                 id: undoButton
-                text: "悔棋"
                 Layout.fillWidth: true
                 Layout.preferredHeight: 40
                 palette.buttonText: "white"
@@ -189,6 +210,29 @@ ApplicationWindow {
                     radius: 5
                     border.width: 1
                     border.color: "royalblue"
+                }
+
+
+                contentItem: Row {
+                    spacing: 8
+                    anchors.centerIn: parent
+
+                    // 悔棋图标
+                    Image {
+                        source: "qrc:/pieces/takeback.png"
+                        width: 24
+                        height: 24
+                        fillMode: Image.PreserveAspectFit
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    // 悔棋文本
+                    Text {
+                        text: "悔棋"
+                        color: "white"
+                        font.pixelSize: 16
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
 
                 onClicked: {
@@ -205,7 +249,6 @@ ApplicationWindow {
             // 和棋按钮
             Button {
                 id: drawButton
-                text: "和棋"
                 Layout.fillWidth: true
                 Layout.preferredHeight: 40
                 palette.buttonText: "white"
@@ -215,6 +258,29 @@ ApplicationWindow {
                     radius: 5
                     border.width: 1
                     border.color: "forestgreen"
+                }
+
+
+                contentItem: Row {
+                    spacing: 8
+                    anchors.centerIn: parent
+
+                    // 和棋图标
+                    Image {
+                        source: "qrc:/pieces/draw.png"
+                        width: 24
+                        height: 24
+                        fillMode: Image.PreserveAspectFit
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    // 和棋文本
+                    Text {
+                        text: "和棋"
+                        color: "white"
+                        font.pixelSize: 16
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
 
                 onClicked: {
@@ -506,15 +572,15 @@ ApplicationWindow {
         height: parent.height * 0.6
 
         anchors.centerIn: parent
-        color: "transparent"  // 将背景改为透明
-        z: 2000 // 确保在最上层
+        color: "transparent"
+        z: 2000
 
         radius: 20
 
         // 背景图片
         Image {
             anchors.fill: parent
-            source: "qrc:/pieces/back.jpg"  // 替换为您的图片路径
+            source: "qrc:/pieces/back.jpg"
             fillMode: Image.PreserveAspectCrop
             opacity: 0.9
             layer.enabled: true
@@ -551,77 +617,124 @@ ApplicationWindow {
                     font.pixelSize: 32
                     font.bold: true
                     Layout.alignment: Qt.AlignHCenter
-                    color: "#f0f0f0"
+                    color: "#f9f1dc"
+                    font.family: "Microsoft YaHei UI"
                     style: Text.Outline
-                    styleColor: "#8b4513"
+                    styleColor: "#a67c52"
+                    font.weight: Font.Bold
                 }
 
                 // 20分钟 + 20秒模式
                 Button {
                     text: "20分钟 + 20秒/步"
-                    font.pixelSize: 20
+                    font.pixelSize: 24
+                    font.bold: true
+                    font.family: "Arial"
                     Layout.preferredWidth: 300
                     Layout.preferredHeight: 60
-                    onClicked: {
-                        whiteTotalTime = 20 * 60 * 1000
-                        blackTotalTime = 20 * 60 * 1000
-                        whiteStepTime = 20 * 1000
-                        blackStepTime = 20 * 1000
-                        showTimeSelection = false
-                        startNewGame(false)
-                    }
 
                     background: Rectangle {
-                        color: parent.down ? "#d3d3d3" : "#f0f0f0"
-                        border.color: "#8b4513"
-                        border.width: 2
+                        color: "#e0a85c"
                         radius: 10
+                        border.width: 2
+                        border.color: "#c88c40"
+                        opacity: 0.85
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font: parent.font
+                        color: "#2a1e0f"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    // 使用 TapHandler 替换 MouseArea
+                    TapHandler {
+                        onTapped: {
+                            whiteTotalTime = 20 * 60 * 1000
+                            blackTotalTime = 20 * 60 * 1000
+                            whiteStepTime = 20 * 1000
+                            blackStepTime = 20 * 1000
+                            showTimeSelection = false
+                            startNewGame(false)
+                        }
                     }
                 }
 
                 // 25分钟 + 25秒模式
                 Button {
                     text: "25分钟 + 25秒/步"
-                    font.pixelSize: 20
+                    font.pixelSize: 24
+                    font.bold: true
+                    font.family: "Arial"
                     Layout.preferredWidth: 300
                     Layout.preferredHeight: 60
-                    onClicked: {
-                        whiteTotalTime = 25 * 60 * 1000
-                        blackTotalTime = 25 * 60 * 1000
-                        whiteStepTime = 25 * 1000
-                        blackStepTime = 25 * 1000
-                        showTimeSelection = false
-                        startNewGame(false)
-                    }
 
                     background: Rectangle {
-                        color: parent.down ? "#d3d3d3" : "#f0f0f0"
-                        border.color: "#8b4513"
-                        border.width: 2
+                        color: "#e0a85c"
                         radius: 10
+                        border.width: 2
+                        border.color: "#c88c40"
+                        opacity: 0.85
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font: parent.font
+                        color: "#2a1e0f"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    // 使用 TapHandler 替换 MouseArea
+                    TapHandler {
+                        onTapped: {
+                            whiteTotalTime = 25 * 60 * 1000
+                            blackTotalTime = 25 * 60 * 1000
+                            whiteStepTime = 25 * 1000
+                            blackStepTime = 25 * 1000
+                            showTimeSelection = false
+                            startNewGame(false)
+                        }
                     }
                 }
 
                 // 30分钟 + 30秒模式
                 Button {
                     text: "30分钟 + 30秒/步"
-                    font.pixelSize: 20
+                    font.pixelSize: 24
+                    font.bold: true
+                    font.family: "Arial"
                     Layout.preferredWidth: 300
                     Layout.preferredHeight: 60
-                    onClicked: {
-                        whiteTotalTime = 30 * 60 * 1000
-                        blackTotalTime = 30 * 60 * 1000
-                        whiteStepTime = 30 * 1000
-                        blackStepTime = 30 * 1000
-                        showTimeSelection = false
-                        startNewGame(false)
-                    }
 
                     background: Rectangle {
-                        color: parent.down ? "#d3d3d3" : "#f0f0f0"
-                        border.color: "#8b4513"
-                        border.width: 2
+                        color: "#e0a85c"
                         radius: 10
+                        border.width: 2
+                        border.color: "#c88c40"
+                        opacity: 0.85
+                    }
+
+                    contentItem: Text {
+                        text: parent.text
+                        font: parent.font
+                        color: "#2a1e0f"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    // 使用 TapHandler 替换 MouseArea
+                    TapHandler {
+                        onTapped: {
+                            whiteTotalTime = 30 * 60 * 1000
+                            blackTotalTime = 30 * 60 * 1000
+                            whiteStepTime = 30 * 1000
+                            blackStepTime = 30 * 1000
+                            showTimeSelection = false
+                            startNewGame(false)
+                        }
                     }
                 }
             }
@@ -725,6 +838,7 @@ ApplicationWindow {
                 onClicked: {
                     //showTimeSelection = true
                     //settlementPanel.visible = false
+                    stackView.pop()
                     window.visible = false
                 }
             }
