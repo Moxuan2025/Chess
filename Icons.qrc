@@ -15,7 +15,7 @@
         <file>pieces/rook_white.png</file>
         <file>GamePlay.qml</file>
         <file>pieces/move.wav</file>
-        <file>../pieces/back.jpg</file>
+<!--         <file>../pieces/back.jpg</file> -->
         <file>pieces/back.jpg</file>
     </qresource>
 </RCC>

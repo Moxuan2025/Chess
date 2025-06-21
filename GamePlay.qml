@@ -723,8 +723,9 @@ ApplicationWindow {
                 text: "返回菜单"
                 font.pixelSize: 24
                 onClicked: {
-                    showTimeSelection = true
-                    settlementPanel.visible = false
+                    //showTimeSelection = true
+                    //settlementPanel.visible = false
+                    window.visible = false
                 }
             }
         }
