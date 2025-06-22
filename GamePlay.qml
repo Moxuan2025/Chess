@@ -32,6 +32,24 @@ ApplicationWindow {
     property bool gameEnded: false
     property bool showTimeSelection: true
 
+
+    // 添加网络移动处理 (新增部分)
+    function handleNetworkMove(from, to) {
+        var piece = chessBoard.pieceAtPosition(from.x, from.y);
+        if (piece) {
+            chessBoard.movePiece(piece, to.x, to.y);
+            // 播放移动音效
+            moveSound.play();
+        }
+    }
+    Connections {
+        target: networkManager
+
+        function onMoveReceived(from, to) {
+            console.log("收到移动:", from, "->", to);
+            handleNetworkMove(from, to);
+        }
+    }
     // 音效属性 - 只保留移动音效
     property bool soundEnabled: true
     SoundEffect {
@@ -518,6 +536,10 @@ ApplicationWindow {
                                     window.selectedPiece = modelData
                                     window.highlightedPositions = modelData.willGo()
                                     window.currentHighlight = null
+                                }
+                                // 发送移动信息给对手 (新增)
+                                if (networkManager.connected) {
+                                    networkManager.sendMove(Qt.point(fromX, fromY), Qt.point(col, row));
                                 }
                             }
                         }

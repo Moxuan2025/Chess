@@ -24,7 +24,7 @@ class ChessBoard : public QObject
 public:
     Q_INVOKABLE void initializeBoard();
     explicit ChessBoard(QObject *parent = nullptr);
-    ChessPiece *pieceAtPosition(int x, int y) const;
+    Q_INVOKABLE ChessPiece *pieceAtPosition(int x, int y) const;
     ~ChessBoard();
 
     Q_INVOKABLE void undoMove(); //悔棋

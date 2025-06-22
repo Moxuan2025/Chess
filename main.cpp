@@ -1,8 +1,9 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include "chessboard.h"
 #include <QResource>
+#include "chessboard.h"
+#include "networkmanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,7 +22,10 @@ int main(int argc, char *argv[])
     // 创建棋盘实例
     ChessBoard board;
 
+    NetworkManager networkManager;
     QQmlApplicationEngine engine;
+
+    engine.rootContext()->setContextProperty("networkManager", &networkManager);
     engine.rootContext()->setContextProperty("chessBoard", &board);
 
     QObject::connect(
