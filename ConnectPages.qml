@@ -129,8 +129,12 @@ Item {
                     }
 
                     TapHandler {
-                        onTapped: console.log("局域网连接点击")
-                    }
+                           onTapped: {
+                               console.log("局域网连接点击")
+                               stackView.push("WLANConnect.qml")
+                           }
+                       }
+
                 }
 
                 // NFC连接按钮
@@ -218,6 +222,7 @@ Item {
                         onTapped: console.log("连接记录点击")
                     }
                 }
+
 
                 // 帮助按钮
                 Rectangle {

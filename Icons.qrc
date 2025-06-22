@@ -27,5 +27,7 @@
         <file>pieces/setting.png</file>
         <file>pieces/start.png</file>
         <file>pieces/warning.png</file>
+        <file>pieces/join.png</file>
+        <file>pieces/create.png</file>
     </qresource>
 </RCC>
