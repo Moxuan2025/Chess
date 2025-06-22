@@ -563,17 +563,13 @@ ApplicationWindow {
         }
     }
 
-    // 时间选择界面（已添加背景图片）
+    // 时间选择界面（已添加背景图片和覆盖层）
     Rectangle {
         id: timeSelection
         visible: showTimeSelection
-
-        width: parent.width * 0.8
-        height: parent.height * 0.6
-
-        anchors.centerIn: parent
-        color: "transparent"
+        anchors.fill: parent  // 修改为填充整个窗口
         z: 2000
+        color: "transparent"
 
         radius: 20
 
@@ -582,7 +578,7 @@ ApplicationWindow {
             anchors.fill: parent
             source: "qrc:/pieces/back.jpg"
             fillMode: Image.PreserveAspectCrop
-            opacity: 0.9
+            opacity: 1.0
             layer.enabled: true
             layer.effect: OpacityMask {
                 maskSource: Rectangle {
@@ -597,7 +593,6 @@ ApplicationWindow {
         Rectangle {
             anchors.fill: parent
             color: "transparent"
-            radius: parent.radius
             border.color: "#8b4513"
             border.width: 3
         }
