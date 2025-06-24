@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import QtMultimedia
+import Chess
 
 ApplicationWindow {
     id: window
@@ -11,6 +12,7 @@ ApplicationWindow {
     visible: true
     title: qsTr("国际象棋")
 
+    //游戏状态
     readonly property int gameStateOngoing: 0
     readonly property int gameStateWhiteWins: 1
     readonly property int gameStateBlackWins: 2
@@ -33,7 +35,7 @@ ApplicationWindow {
     property bool showTimeSelection: true
 
 
-    // 添加网络移动处理 (新增部分)
+    // 添加网络移动处理
     function handleNetworkMove(from, to) {
         var piece = chessBoard.pieceAtPosition(from.x, from.y);
         if (piece) {
@@ -178,13 +180,13 @@ ApplicationWindow {
                 palette.buttonText: "white"
 
                 background: Rectangle {
-                    color: "#8b0000"  // 深红色
+                    color: "#8b0000"
                     radius: 5
                     border.width: 1
                     border.color: "#5a0000"
                 }
 
-                // 自定义内容区域
+
                 contentItem: Row {
                     spacing: 8
                     anchors.centerIn: parent
@@ -208,10 +210,11 @@ ApplicationWindow {
                 }
 
                 onClicked: {
-                    // 投降逻辑
-                    console.log("玩家选择投降")
-                    gameState = isWhiteTurn ? gameStateBlackWins : gameStateWhiteWins
-                    settlementPanel.visible = true
+                    // 投降逻辑: 发送投降操作数据给对手+本地处理
+                    // networkManager.sendOperation(SurrenderRequest);
+                    networkManager.sendOperation(NetworkManager.SurrenderRequest);
+                    gameState =  playerColor=="white"? gameStateBlackWins : gameStateWhiteWins;
+                    settlementPanel.visible = true;
                 }
             }
 
@@ -224,7 +227,7 @@ ApplicationWindow {
                 palette.buttonText: "white"
 
                 background: Rectangle {
-                    color: "dodgerblue"  // 道奇蓝
+                    color: "dodgerblue"
                     radius: 5
                     border.width: 1
                     border.color: "royalblue"
@@ -255,12 +258,13 @@ ApplicationWindow {
 
                 onClicked: {
                     // 悔棋逻辑
-                    if (chessBoard.undoMove) {
+                    networkManager.sendOperation(NetworkManager.UndoRequest);
+                   /* if (chessBoard.undoMove) {
                         chessBoard.undoMove()
                         window.selectedPiece = null
                         window.highlightedPositions = []
                         window.isWhiteTurn = chessBoard.isWhiteTurn
-                    }
+                    }*/
                 }
             }
 
@@ -304,8 +308,7 @@ ApplicationWindow {
                 onClicked: {
                     // 和棋逻辑
                     console.log("玩家请求和棋")
-                    gameState = gameStateDraw
-                    settlementPanel.visible = true
+                    networkManager.sendOperation(NetworkManager.DrawRequest);
                 }
             }
 
@@ -913,6 +916,97 @@ ApplicationWindow {
             }
         }
     }
+
+    Dialog {
+            id: operationDialog
+            anchors.centerIn: parent
+            width: parent.width * 0.7
+            height: 200
+            modal: true
+            title: ""
+            standardButtons: Dialog.Yes | Dialog.No
+
+            property int operationType: -1
+
+            contentItem: ColumnLayout {
+                spacing: 20
+                Text {
+                    id: dialogText
+                    text: ""
+                    font.pixelSize: 20
+                    Layout.alignment: Qt.AlignHCenter
+                }
+            }
+
+            onAccepted: {
+                if (operationType === NetworkManager.UndoRequest) {
+                    networkManager.sendOperation(NetworkManager.UndoResponse, true);
+                    chessBoard.undoMove();
+                } else if (operationType === NetworkManager.DrawRequest) {
+                    networkManager.sendOperation(NetworkManager.DrawResponse, true);
+                    gameState = gameStateDraw;
+                    settlementPanel.visible = true;
+                }
+            }
+
+            onRejected: {
+                if (operationType === NetworkManager.UndoRequest) {
+                    networkManager.sendOperation(NetworkManager.UndoResponse, false);
+                } else if (operationType === NetworkManager.DrawRequest) {
+                    networkManager.sendOperation(NetworkManager.DrawResponse, false);
+                }
+            }
+        }
+
+        // 添加操作接收处理
+        Connections {
+            target: networkManager
+
+            function onOperationReceived(operation, response) {
+                console.log("收到操作:", operation, "响应:", response);
+
+                switch(operation) {
+                case NetworkManager.SurrenderRequest://投降
+                    // 对方投降，我方胜利
+                    gameState = mainWindow.playerColor == "white" ?
+                        gameStateWhiteWins : gameStateBlackWins;//根据棋手阵营判断输赢
+                    settlementPanel.visible = true;
+                    break;
+
+                case NetworkManager.UndoRequest://悔棋请求
+                    operationDialog.title = "悔棋请求";
+                    dialogText.text = "对方请求悔棋，是否同意？";
+                    operationDialog.operationType = operation;
+                    operationDialog.open();
+                    break;
+
+                case NetworkManager.DrawRequest://和棋请求
+                    operationDialog.title = "和棋请求";
+                    dialogText.text = "对方请求和棋，是否同意？";
+                    operationDialog.operationType = operation;
+                    operationDialog.open();
+                    break;
+
+                case NetworkManager.UndoResponse://悔棋请求响应
+                    if (response) {
+                        chessBoard.undoMove();
+                    } else {
+                        console.log("对方拒绝了悔棋请求");
+                    }
+                    break;
+
+                case NetworkManager.DrawResponse://和棋请求响应
+                    if (response) {
+                        gameState = gameStateDraw;
+                        settlementPanel.visible = true;
+                    } else {
+                        console.log("对方拒绝了和棋请求");
+                    }
+                    break;
+                }
+            }
+        }
+
 
     // 关于对话框
     Dialog {

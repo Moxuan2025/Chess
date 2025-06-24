@@ -53,7 +53,21 @@ void NetworkManager::sendMove(
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << from << to;
+    stream << 1 << from << to;
+    m_socket->write(data);
+}
+
+void NetworkManager::sendOperation(
+    OperationType operation, bool response)
+{
+    if (!m_socket || !m_connected)
+        return;
+
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << -1; // 标志位 -1 表示操作数据
+    stream << static_cast<int>(operation);
+    stream << response;
     m_socket->write(data);
 }
 
@@ -75,7 +89,20 @@ void NetworkManager::onNewConnection()
 void NetworkManager::onReadyRead()
 {
     QDataStream stream(m_socket);
-    QPoint from, to;
-    stream >> from >> to;
-    emit moveReceived(from, to);
+
+    // 读取标志位
+    int flag;
+    stream >> flag;
+
+    if (flag == 1) { // 移动数据
+        QPoint from, to;
+        stream >> from >> to;
+        emit moveReceived(from, to);
+    } else if (flag == -1) { // 操作数据
+        OperationType operation{};
+        bool response{};
+        stream >> operation;
+        stream >> response;
+        emit operationReceived(operation, response);
+    }
 }
