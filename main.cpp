@@ -25,6 +25,8 @@ int main(int argc, char *argv[])
     NetworkManager networkManager;
     QQmlApplicationEngine engine;
 
+    board.setNetworkManager(&networkManager);
+
     engine.rootContext()->setContextProperty("networkManager", &networkManager);
     engine.rootContext()->setContextProperty("chessBoard", &board);
 

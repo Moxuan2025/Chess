@@ -407,9 +407,20 @@ ApplicationWindow {
                 anchors.fill: parent
                 color: "#f0d9b5"
 
+                transform: [
+                    Scale {
+                        id: boardScale
+                        origin.x: boardContainer.width /2
+                        origin.y: boardContainer.height /2
+                        xScale: mainWindow.playerColor === "black" ? -1 : 1
+                        yScale: mainWindow.playerColor === "black" ? -1 : 1
+                    }
+                ]
+
                 // 棋盘网格
                 Grid {
                     id: chessGrid
+                    flow: Grid.LeftToRight
                     anchors.centerIn: parent
                     width: Math.min(parent.width, parent.height)
                     height: width
@@ -431,10 +442,16 @@ ApplicationWindow {
                                 visible: col === 0
                                 x: 2
                                 y: 2
-                                text: 8 - row
+                                text: mainWindow.playerColor === "black" ? (8 - row) : (1 + row)
                                 font.pixelSize: 10
                                 font.bold: true
                                 color: "#5d432c"
+                                transform: [
+                                    Scale {
+                                        xScale: mainWindow.playerColor === "black" ? -1 : 1
+                                        yScale: mainWindow.playerColor === "black" ? -1 : 1
+                                    }
+                                ]
                             }
 
                             // 列坐标标签
@@ -446,6 +463,12 @@ ApplicationWindow {
                                 font.pixelSize: 10
                                 font.bold: true
                                 color: "#5d432c"
+                                transform: [
+                                    Scale {
+                                        xScale: mainWindow.playerColor === "black" ? -1 : 1
+                                        yScale: mainWindow.playerColor === "black" ? -1 : 1
+                                    }
+                                ]
                             }
 
                             // 可移动位置高亮
@@ -467,7 +490,7 @@ ApplicationWindow {
                                 onTapped: {
                                     if (window.selectedPiece && !gameEnded) {
                                         window.currentHighlight = {x: col, y: row}
-                                        chessBoard.movePiece(window.selectedPiece, col, row)
+                                        chessBoard.movePiece(window.selectedPiece, col, row, true)
 
                                         // 播放移动音效
                                         moveSound.play()
@@ -476,6 +499,21 @@ ApplicationWindow {
                                         window.selectedPiece = null
                                         resetStepTime()
                                     }
+                                }
+                            }
+                            function handleNetworkMove(from, to) {
+                                var piece = chessBoard.pieceAtPosition(from.x, from.y);
+                                if (piece) {
+                                    // 执行移动
+                                    chessBoard.handleNetworkMove(from, to);
+
+                                    // 播放音效
+                                    moveSound.play();
+
+                                    // 更新UI状态
+                                    window.selectedPiece = null;
+                                    window.highlightedPositions = [];
+                                    window.resetStepTime();
                                 }
                             }
                         }
@@ -492,10 +530,20 @@ ApplicationWindow {
                         property real cellWidth: chessGrid.width / 8
                         property real cellHeight: chessGrid.height / 8
 
+
                         x: chessGrid.x + modelData.x * cellWidth
                         y: chessGrid.y + modelData.y * cellHeight
                         width: cellWidth
                         height: cellHeight
+
+                        transform: [
+                            Scale {
+                                origin.x: pieceImage.width*0.6
+                                origin.y: pieceImage.height*0.6
+                                xScale: mainWindow.playerColor === "black" ? -1 : 1
+                                yScale: mainWindow.playerColor === "black" ? -1 : 1
+                            }
+                        ]
 
                         // 棋子图片
                         Image {
@@ -507,7 +555,10 @@ ApplicationWindow {
                             fillMode: Image.PreserveAspectFit
 
                             function getPieceSource(type, isWhite) {
+
+
                                 const color = isWhite ? "white" : "black"
+
                                 switch(type) {
                                 case ChessPiece.Pawn:   return "qrc:/pieces/pawn_" + color + ".png"
                                 case ChessPiece.Rook:   return "qrc:/pieces/rook_" + color + ".png"
@@ -523,6 +574,10 @@ ApplicationWindow {
 
                         TapHandler {
                             onTapped: function(eventPoint) {
+                                // 检查玩家是否有权操作该棋子
+                                if (mainWindow.playerColor === "white" && !modelData.isWhite) return;
+                                if (mainWindow.playerColor === "black" && modelData.isWhite) return;
+
                                 const isHighlightedPosition = window.highlightedPositions.some(pos =>
                                     pos.x === modelData.x && pos.y === modelData.y
                                 )
@@ -532,14 +587,14 @@ ApplicationWindow {
                                     return
                                 }
 
-                                if (modelData.isWhite === isWhiteTurn && !modelData.captured && !gameEnded) {
+                                if (modelData.isWhite === window.isWhiteTurn && !modelData.captured && !gameEnded) {
                                     window.selectedPiece = modelData
                                     window.highlightedPositions = modelData.willGo()
                                     window.currentHighlight = null
                                 }
-                                // 发送移动信息给对手 (新增)
+                                // 发送移动信息给对手
                                 if (networkManager.connected) {
-                                    networkManager.sendMove(Qt.point(fromX, fromY), Qt.point(col, row));
+                                    networkManager.sendMove(Qt.point(modelData.x, modelData.y), Qt.point(col, row));
                                 }
                             }
                         }

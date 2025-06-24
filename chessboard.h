@@ -1,10 +1,11 @@
 #pragma once
-#include "chesspiece.h"
 //#include <memory>
 #include <QObject>
 #include <QList>
 #include <QVariant>
 #include <QStack>
+#include "chesspiece.h"
+#include "networkmanager.h"
 
 //记录棋子行走，便于悔棋
 struct MoveRecord
@@ -42,7 +43,11 @@ public:
     // ...
     Q_INVOKABLE void capturePieceAt(int x, int y);
     Q_INVOKABLE void setFirstMove(bool isWhite); // 设置先行方
-    Q_INVOKABLE void movePiece(ChessPiece *piece, int newX, int newY); // 移动棋子方法，调用go
+    Q_INVOKABLE void movePiece(
+        ChessPiece *piece,
+        int newX,
+        int newY,
+        bool isLocalMove = true); // 移动棋子方法，调用go//添加参数便于识别是本地移动还是同步网络
     //...
 
     void printBoardState() const; /////////////
@@ -54,11 +59,21 @@ public:
     } //记录上次移动的棋子
 
     ChessPiece *getLsatPiece() { return m_lastPiece; } //获取上次移动棋子
+    void setNetworkManager(
+        NetworkManager *manager)
+    {
+        m_networkManager = manager;
+    }
+
+    // 处理网络移动
+    Q_INVOKABLE void handleNetworkMove(const QPoint &from, const QPoint &to);
+
     //
 signals:
     void piecesChanged();
     void turnChanged(); // 回合改变信号gf
     void pieceMoved();  // 棋子移动信号gf
+    void pieceMovedByNetwork(QPoint from, QPoint to); // 网络移动信号
 private:
     // 添加王指针
     ChessPiece *m_whiteKing = nullptr;
@@ -75,4 +90,5 @@ private:
     ChessPiece *m_lastPiece = nullptr; //记录上次移动的棋子
 
     QStack<MoveRecord> m_moveHistory;
+    NetworkManager *m_networkManager = nullptr; // 添加网络管理器指针
 };

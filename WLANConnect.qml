@@ -301,6 +301,9 @@ Item {
         border.color: "#a67c52"
         z: 100
 
+        // 对话框显示时确保输入框获得焦点
+        onVisibleChanged: if (visible) createInput.forceActiveFocus()
+
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 15
@@ -319,6 +322,10 @@ Item {
                 text: inputText
                 font.pixelSize: 18
                 onTextChanged: inputText = text
+
+                // 禁用软键盘的关键设置
+                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferNumbers | Qt.ImhNoPredictiveText
+                activeFocusOnPress: false
             }
 
             RowLayout {
@@ -358,6 +365,9 @@ Item {
         border.color: "#a67c52"
         z: 100
 
+        // 对话框显示时确保输入框获得焦点
+        onVisibleChanged: if (visible) joinInput.forceActiveFocus()
+
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 15
@@ -376,6 +386,10 @@ Item {
                 text: inputText
                 font.pixelSize: 18
                 onTextChanged: inputText = text
+
+                // 禁用软键盘的关键设置
+                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferNumbers | Qt.ImhNoPredictiveText
+                activeFocusOnPress: false
             }
 
             RowLayout {
@@ -429,12 +443,14 @@ Item {
         console.log("创建房间点击");
         networkManager.startServer();
         updateRoomStatus("等待连接...", roomName, "本机IP");
+        mainWindow.playerColor = "white"
     }
 
     onJoinRoomRequested: {
         console.log("加入房间点击");
         networkManager.connectToServer(ipAddress);
         updateRoomStatus("连接中...", "加入的房间", ipAddress);
+        mainWindow.playerColor = "black"
     }
 
     onStartGameRequested: {

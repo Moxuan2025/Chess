@@ -10,7 +10,7 @@ ApplicationWindow {
     visible: true
     title: "国际象棋"
     color: "#1e1e2e"
-
+    property string playerColor: "white"
     // 使用 StackView 管理页面导航
     StackView {
         id: stackView

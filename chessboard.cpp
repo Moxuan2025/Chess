@@ -224,7 +224,7 @@ void ChessBoard::undoMove()
 }
 
 void ChessBoard::movePiece(
-    ChessPiece* piece, int newX, int newY)
+    ChessPiece* piece, int newX, int newY, bool isLocalMove)
 {
     // 创建历史记录
     MoveRecord record;
@@ -235,13 +235,18 @@ void ChessBoard::movePiece(
     if (piece->type() == ChessPiece::Pawn && this->getLsatPiece()) {
         if (this->getLsatPiece()->getEnPassantPoint() == QPoint(newX, newY))
             record.capturedPiece = this->getLsatPiece();
-        ;
     }
 
     record.wasCaptured = record.capturedPiece ? record.capturedPiece->isCaptured() : false;
 
     // 保存历史记录
     m_moveHistory.push(record);
+
+    if (isLocalMove && m_networkManager && m_networkManager->isConnected()) {
+        QPoint from(piece->x(), piece->y());
+        QPoint to(newX, newY);
+        m_networkManager->sendMove(from, to);
+    } //发送将要移动坐标给对手，之后进行本地移动，如下
 
     // 检查目标位置是否有棋子
     ChessPiece* targetPiece = pieceAtPosition(newX, newY);
@@ -261,11 +266,30 @@ void ChessBoard::movePiece(
     }
     piece->go((piece->type() == ChessPiece::Pawn), newX, newY);
     setLastPiece(piece);
+    /*
+    // 发送移动信息到网络
+    if (m_networkManager && m_networkManager->isConnected()) {
+        QPoint from(piece->x(), piece->y());
+        QPoint to(newX, newY);
+        m_networkManager->sendMove(from, to);
+    }*/
 
     // 切换回合
     switchTurn();
 
     emit pieceMoved();
+}
+
+void ChessBoard::handleNetworkMove(
+    const QPoint& from, const QPoint& to)
+{
+    ChessPiece* piece = pieceAtPosition(from.x(), from.y()); //根据坐标进行棋子捕获
+    if (piece) {
+        movePiece(piece,
+                  to.x(),
+                  to.y(),
+                  false); // false 表示是网络移动，将对手移动同步到本地（不会再发送坐标）
+    }
 }
 ChessPiece* ChessBoard::pieceAtPosition(
     int x, int y) const
