@@ -25,7 +25,7 @@ QML_FILES ConnectPages.qml
 RESOURCES pieces/connect.png
 QML_FILES WLANConnect.qml
 SOURCES networkmanager.h networkmanager.cpp
-# RESOURCES pieces/Chess.png pieces/rook_black.png pieces/king_black.png pieces/queen_black.png pieces/bishop_black.png pieces/knight_black.png pieces/king_white.png pieces/pawn_white.png pieces/rook_white.png pieces/knight_white.png pieces/bishop_white.png pieces/queen_white.png pieces/pawn_black.png pieces/move.wav pieces/back.jpg pieces/about.png pieces/draw.png pieces/NFC.png pieces/takeback.png pieces/touxiang.png pieces/wlan.png pieces/exit.png pieces/setting.png pieces/start.png pieces/connect.png
+QML_FILES Nfc.qml
 
 
 

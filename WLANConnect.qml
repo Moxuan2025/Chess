@@ -37,12 +37,6 @@ Item {
         opacity: 0.7
     }
 
-    Rectangle {
-        anchors.fill: parent
-        color: "#f0d6a0"
-        opacity: 0.35
-    }
-
     // 顶部标题栏
     Rectangle {
         id: header

@@ -40,12 +40,6 @@ ApplicationWindow {
                 }
             }
 
-            Rectangle {
-                anchors.fill: parent
-                color: "#f0d6a0"
-                opacity: 0.35
-            }
-
             ColumnLayout {
                 anchors.centerIn: parent
                 spacing: 30

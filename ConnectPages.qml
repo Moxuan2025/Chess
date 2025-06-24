@@ -18,13 +18,6 @@ Item {
             opacity: 0.7
         }
 
-        // 半透明遮罩层
-        Rectangle {
-            anchors.fill: parent
-            color: "#f0d6a0"
-            opacity: 0.35
-        }
-
         // 顶部标题栏
         Rectangle {
             id: header
@@ -176,9 +169,8 @@ Item {
                     }
 
                     TapHandler {
-                        onTapped: console.log("NFC连接点击")
-                    }
-                }
+                        onTapped: stackView.push("Nfc.qml")
+                    }                }
 
                 // 连接记录按钮
                 Rectangle {
