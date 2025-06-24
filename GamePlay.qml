@@ -33,9 +33,11 @@ ApplicationWindow {
     property bool timerActive: true
     property bool gameEnded: false
     property bool showTimeSelection: true
+    // 初始步时属性
+    property int whiteStepTimeInitial: 15 * 1000
+    property int blackStepTimeInitial: 15 * 1000
 
-
-    // 添加网络移动处理
+    // 网络移动处理
     function handleNetworkMove(from, to) {
         var piece = chessBoard.pieceAtPosition(from.x, from.y);
         if (piece) {
@@ -52,7 +54,7 @@ ApplicationWindow {
             handleNetworkMove(from, to);
         }
     }
-    // 音效属性 - 只保留移动音效
+    // 音效属性
     property bool soundEnabled: true
     SoundEffect {
         id: moveSound
@@ -80,14 +82,6 @@ ApplicationWindow {
         }
     }
 
-    // 切换回合时重置步时
-    function resetStepTime() {
-        if (isWhiteTurn) {
-            whiteStepTime = 15 * 1000
-        } else {
-            blackStepTime = 15 * 1000
-        }
-    }
 
     // 检查游戏状态
     function checkGameState() {
@@ -500,7 +494,7 @@ ApplicationWindow {
 
                                         window.highlightedPositions = []
                                         window.selectedPiece = null
-                                        resetStepTime()
+                                        resetStepTimeWithRoomSettings()
                                     }
                                 }
                             }
@@ -517,6 +511,8 @@ ApplicationWindow {
                                     window.selectedPiece = null;
                                     window.highlightedPositions = [];
                                     window.resetStepTime();
+                                    // 重置步时 - 使用创建房间时选择的步时设置
+                                    resetStepTimeWithRoomSettings();
                                 }
                             }
                         }
@@ -730,6 +726,9 @@ ApplicationWindow {
                             blackTotalTime = 20 * 60 * 1000
                             whiteStepTime = 20 * 1000
                             blackStepTime = 20 * 1000
+                            // 保存初始步时设置
+                             whiteStepTimeInitial = 20 * 1000
+                             blackStepTimeInitial = 20 * 1000
                             showTimeSelection = false
                             startNewGame(false)
                         }
@@ -767,6 +766,9 @@ ApplicationWindow {
                             blackTotalTime = 25 * 60 * 1000
                             whiteStepTime = 25 * 1000
                             blackStepTime = 25 * 1000
+                            // 保存初始步时设置
+                             whiteStepTimeInitial = 25 * 1000
+                             blackStepTimeInitial = 25 * 1000
                             showTimeSelection = false
                             startNewGame(false)
                         }
@@ -800,16 +802,27 @@ ApplicationWindow {
 
                     TapHandler {
                         onTapped: {
-                            whiteTotalTime = 30 * 60 * 1000
-                            blackTotalTime = 30 * 60 * 1000
-                            whiteStepTime = 30 * 1000
-                            blackStepTime = 30 * 1000
+                            whiteTotalTime = 30*60*1000
+                            blackTotalTime = 30*60*1000
+                            whiteStepTime = 30*1000
+                            blackStepTime = 30*1000
+                            // 保存初始步时设置
+                             whiteStepTimeInitial = 30*1000
+                             blackStepTimeInitial = 30*1000
                             showTimeSelection = false
                             startNewGame(false)
                         }
                     }
                 }
             }
+        }
+    }
+    // 使用房间设置重置步时
+    function resetStepTimeWithRoomSettings() {
+        if (isWhiteTurn) {
+            whiteStepTime = whiteStepTimeInitial;
+        } else {
+            blackStepTime = blackStepTimeInitial;
         }
     }
 
@@ -1042,5 +1055,9 @@ ApplicationWindow {
         chessBoard.initializeBoard()
         updateCheckState()
         showTimeSelection = true
+        chessBoard.pieceMoved.connect(function() {
+            resetStepTimeWithRoomSettings();
+            isWhiteTurn = chessBoard.isWhiteTurn;
+        });
     }
 }
