@@ -90,7 +90,7 @@ void NetworkManager::onReadyRead()
 {
     QDataStream stream(m_socket);
 
-    // 读取标志位
+    // 区分数据类型
     int flag;
     stream >> flag;
 

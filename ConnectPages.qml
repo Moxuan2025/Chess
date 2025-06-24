@@ -263,7 +263,15 @@ Item {
                     }
 
                     TapHandler {
-                        onTapped: console.log("帮助点击")
+                        onTapped: {
+                            console.log("帮助点击")
+                            var page = stackView.push("ConnectHelp.qml")
+                            page.objectName = "connectHelp" // 添加标识
+                            // 连接返回信号
+                            page.backRequested.connect(function() {
+                                stackView.pop()
+                            })
+                        }
                     }
                 }
             }
