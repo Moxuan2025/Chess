@@ -95,10 +95,10 @@ Item {
                     Text {
                         anchors.fill: parent
                         anchors.margins: 20
-                        text: "1. 任意一方选择创建房间，另一个选择加入房间\n\n" +
-                              "2. 创建房间的名称随意\n\n" +
-                              "3. 加入房间需要输入对方的IP地址\n" +
-                              "   (提示：可以打开WIFI配置查看)\n\n" +
+                        text: "1. 任意一方选择创建房间，另一个选择加入房间\n" +
+                              "2. 创建房间的名称随意\n" +
+                              "3. 加入房间需要输入对方的IP地址" +
+                              "   (提示：可以打开WIFI配置查看)\n" +
                               "4. 创建房间一方执白棋，另一方执黑棋"
                         font.pixelSize: 24
                         wrapMode: Text.WordWrap
@@ -189,9 +189,9 @@ Item {
                     Text {
                         anchors.fill: parent
                         anchors.margins: 20
-                        text: "1. 任意一方选择创建房间，另一个选择加入房间\n\n" +
-                              "2. 弹出等待连接对话框时\n\n" +
-                              "3. 将两台设备靠近即可连接\n\n" +
+                        text: "1. 任意一方选择创建房间，另一个选择加入房间\n" +
+                              "2. 弹出等待连接对话框时\n" +
+                              "3. 将两台设备靠近即可连接\n" +
                               "4. 创建房间一方执白棋，另一方执黑棋"
                         font.pixelSize: 24
                         wrapMode: Text.WordWrap

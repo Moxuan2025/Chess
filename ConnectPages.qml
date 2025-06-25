@@ -63,7 +63,7 @@ Item {
             spacing: 20
 
             Text {
-                text: "设备连接"
+                text: "游戏模式"
                 font.pixelSize: 56
                 font.bold: true
                 color: "#f9f1dc"
@@ -113,7 +113,7 @@ Item {
                         }
 
                         Text {
-                            text: "局域网连接"
+                            text: "局域网模式"
                             color: "#2a1e0f"
                             font.pixelSize: 24
                             font.bold: true
@@ -160,7 +160,7 @@ Item {
                         }
 
                         Text {
-                            text: "NFC连接"
+                            text: "NFC模式"
                             color: "#2a1e0f"
                             font.pixelSize: 24
                             font.bold: true

@@ -93,7 +93,7 @@ ApplicationWindow {
                                   }
 
                        onClicked: {
-                           stackView.push(gamePlay)
+                           stackView.push(connectPage)
                        }
                    }
 
@@ -120,13 +120,13 @@ ApplicationWindow {
                                               spacing: 15
                                               anchors.centerIn: parent
                                               Image {
-                                                  source: "qrc:/pieces/connect.png"
+                                                  source: "qrc:/pieces/again.png"
                                                   width: 28
                                                   height: 28
                                                   anchors.verticalCenter: parent.verticalCenter
                                               }
                                               Text {
-                                                  text: "设备连接"
+                                                  text: "再战一次"
                                                   font: connectButton.font
                                                   color: "#2a1e0f"
                                                   anchors.verticalCenter: parent.verticalCenter
@@ -135,7 +135,7 @@ ApplicationWindow {
                                       }
 
                        onClicked: {
-                           stackView.push(connectPage)
+                           stackView.push(gamePlay)
                        }
                    }
 
@@ -225,7 +225,7 @@ ApplicationWindow {
 
             // 底部版权信息
             Text {
-                text: "© 2025 国际象棋大师 | v1.2.0"
+                text: "© 2025 国际象棋 | v1.2.0 | 联系我们 17761071375"
                 color: "#aaa"
                 font.pixelSize: 14
                 anchors.bottom: parent.bottom

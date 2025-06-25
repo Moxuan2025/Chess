@@ -24,10 +24,16 @@ Item {
     property string statusBarText: "局域网连接 | 状态: 准备中"
     property bool isConnected: false
 
-    // 添加输入对话框属性
-    property bool showCreateDialog: false
-    property bool showJoinDialog: false
-    property string inputText: ""
+    // IP地址输入属性
+    property bool showIpInputDialog: false
+    property var ipDigits: [1,9,2,1,6,8,0,0,0,0,0,0] // 12位IP地址数字
+
+    // 格式化IP地址显示
+    function formatIpAddress() {
+        return "192.168." +
+               ipDigits[6] + "" + ipDigits[7] + "" + ipDigits[8] + "." +
+               ipDigits[9] + "" + ipDigits[10] + "" + ipDigits[11];
+    }
 
     // 背景图片设置
     Image {
@@ -120,9 +126,10 @@ Item {
 
             TapHandler {
                 onTapped: {
-                    // 打开创建房间输入对话框
-                    inputText = ""
-                    showCreateDialog = true
+                    // 直接使用默认房间名创建房间
+                    roomName = "我的房间"
+                    console.log("创建房间:", roomName)
+                    createRoomRequested()
                 }
             }
         }
@@ -159,9 +166,9 @@ Item {
 
             TapHandler {
                 onTapped: {
-                    // 打开加入房间输入对话框
-                    inputText = ""
-                    showJoinDialog = true
+                    // 初始化IP地址为192.168.000.000格式
+                    ipDigits = [1,9,2,1,6,8,0,0,0,0,0,0]
+                    showIpInputDialog = true
                 }
             }
         }
@@ -282,127 +289,203 @@ Item {
         }
     }
 
-    // 创建房间输入对话框
+    // IP地址输入对话框
     Rectangle {
-        id: createDialog
-        visible: showCreateDialog
-        width: parent.width * 0.8
-        height: 200
+        id: ipInputDialog
+        visible: showIpInputDialog
+        width: Math.min(parent.width * 0.9, 500)
+        height: 500
         anchors.centerIn: parent
-        color: "#f0f0f0"
-        radius: 10
+        color: "#f9f1dc"
+        radius: 15
         border.width: 2
         border.color: "#a67c52"
         z: 100
 
-        // 对话框显示时确保输入框获得焦点
-        onVisibleChanged: if (visible) createInput.forceActiveFocus()
-
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 15
+            anchors.margins: 20
             spacing: 15
 
             Text {
-                text: "输入房间名称:"
-                font.pixelSize: 20
+                text: "输入服务器IP地址"
+                font.pixelSize: 24
                 Layout.alignment: Qt.AlignHCenter
+                font.bold: true
+                color: "#5c3c1f"
             }
 
-            TextField {
-                id: createInput
+            // IP地址显示
+            Rectangle {
                 Layout.fillWidth: true
-                placeholderText: "例如: 我的国际象棋房间"
-                text: inputText
-                font.pixelSize: 18
-                onTextChanged: inputText = text
+                Layout.preferredHeight: 60
+                radius: 10
+                color: "#f0f0f0"
+                border.color: "#a67c52"
+                border.width: 1
 
-                // 禁用软键盘的关键设置
-                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferNumbers | Qt.ImhNoPredictiveText
-                activeFocusOnPress: false
+                Text {
+                    id: ipDisplay
+                    text: formatIpAddress()
+                    font.pixelSize: 28
+                    anchors.centerIn: parent
+                    color: "#8a5c2e"
+                    font.family: "Courier New"
+                    font.bold: true
+                }
             }
 
-            RowLayout {
+            // 固定IP部分提示
+            Text {
+                text: "前六位固定为: 192.168"
+                font.pixelSize: 16
                 Layout.alignment: Qt.AlignHCenter
-                spacing: 20
+                color: "#5c3c1f"
+            }
 
-                Button {
-                    text: "取消"
-                    onClicked: showCreateDialog = false
-                }
+            // 滑动选择器区域
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                color: "transparent"
 
-                Button {
-                    text: "确定"
-                    onClicked: {
-                        if (inputText.trim() !== "") {
-                            roomName = inputText
-                            console.log("创建房间:", inputText)
-                            createRoomRequested()
-                            showCreateDialog = false
+                GridLayout {
+                    anchors.fill: parent
+                    columns: 3
+                    columnSpacing: 15
+                    rowSpacing: 15
+
+                    // 生成6个数字选择器 (后6位)
+                    Repeater {
+                        model: 6
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+
+                            // 数字标签
+                            Text {
+                                text: "数字 " + (index + 1)
+                                font.pixelSize: 14
+                                color: "#5c3c1f"
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+
+                            // 滑动条
+                            Slider {
+                                id: slider
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 40
+                                from: 0
+                                to: 9
+                                stepSize: 1
+                                value: ipDigits[6 + index]
+                                snapMode: Slider.SnapAlways
+
+                                background: Rectangle {
+                                    x: slider.leftPadding
+                                    y: slider.topPadding + slider.availableHeight / 2 - height / 2
+                                    implicitWidth: 200
+                                    implicitHeight: 4
+                                    width: slider.availableWidth
+                                    height: implicitHeight
+                                    radius: 2
+                                    color: "#d3c0a5"
+
+                                    Rectangle {
+                                        width: slider.visualPosition * parent.width
+                                        height: parent.height
+                                        color: "#e0a85c"
+                                        radius: 2
+                                    }
+                                }
+
+                                handle: Rectangle {
+                                    x: slider.leftPadding + slider.visualPosition * (slider.availableWidth - width)
+                                    y: slider.topPadding + slider.availableHeight / 2 - height / 2
+                                    implicitWidth: 30
+                                    implicitHeight: 30
+                                    radius: 15
+                                    color: slider.pressed ? "#c88c40" : "#e0a85c"
+                                    border.color: "#a67c52"
+                                    border.width: 2
+
+                                    Text {
+                                        text: Math.round(slider.value)
+                                        anchors.centerIn: parent
+                                        font.pixelSize: 16
+                                        color: "white"
+                                        font.bold: true
+                                    }
+                                }
+
+                                onValueChanged: {
+                                    ipDigits[6 + index] = Math.round(value)
+                                }
+                            }
+
+                            // 当前值显示
+                            Text {
+                                text: ipDigits[6 + index]
+                                font.pixelSize: 24
+                                font.bold: true
+                                color: "#5c3c1f"
+                                Layout.alignment: Qt.AlignHCenter
+                            }
                         }
                     }
                 }
             }
-        }
-    }
 
-    // 加入房间输入对话框
-    Rectangle {
-        id: joinDialog
-        visible: showJoinDialog
-        width: parent.width * 0.8
-        height: 200
-        anchors.centerIn: parent
-        color: "#f0f0f0"
-        radius: 10
-        border.width: 2
-        border.color: "#a67c52"
-        z: 100
-
-        // 对话框显示时确保输入框获得焦点
-        onVisibleChanged: if (visible) joinInput.forceActiveFocus()
-
-        ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: 15
-            spacing: 15
-
-            Text {
-                text: "输入服务器IP地址:"
-                font.pixelSize: 20
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            TextField {
-                id: joinInput
-                Layout.fillWidth: true
-                placeholderText: "例如: 192.168.1.2"
-                text: inputText
-                font.pixelSize: 18
-                onTextChanged: inputText = text
-
-                // 禁用软键盘的关键设置
-                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferNumbers | Qt.ImhNoPredictiveText
-                activeFocusOnPress: false
-            }
-
+            // 按钮区域
             RowLayout {
                 Layout.alignment: Qt.AlignHCenter
-                spacing: 20
+                spacing: 30
 
-                Button {
-                    text: "取消"
-                    onClicked: showJoinDialog = false
+                // 取消按钮
+                Rectangle {
+                    width: 120
+                    height: 50
+                    radius: 10
+                    color: "#e0a85c"
+                    border.width: 2
+                    border.color: "#c88c40"
+
+                    Text {
+                        text: "取消"
+                        font.pixelSize: 22
+                        font.bold: true
+                        color: "#2a1e0f"
+                        anchors.centerIn: parent
+                    }
+
+                    TapHandler {
+                        onTapped: showIpInputDialog = false
+                    }
                 }
 
-                Button {
-                    text: "确定"
-                    onClicked: {
-                        if (inputText.trim() !== "") {
-                            ipAddress = inputText
-                            console.log("加入房间:", inputText)
+                // 确定按钮
+                Rectangle {
+                    width: 120
+                    height: 50
+                    radius: 10
+                    color: "#e0a85c"
+                    border.width: 2
+                    border.color: "#c88c40"
+
+                    Text {
+                        text: "确定"
+                        font.pixelSize: 22
+                        font.bold: true
+                        color: "#2a1e0f"
+                        anchors.centerIn: parent
+                    }
+
+                    TapHandler {
+                        onTapped: {
+                            ipAddress = formatIpAddress()
+                            console.log("加入房间:", ipAddress)
                             joinRoomRequested()
-                            showJoinDialog = false
+                            showIpInputDialog = false
                         }
                     }
                 }

@@ -32,7 +32,6 @@ ApplicationWindow {
     property int blackStepTime: 15 * 1000
     property bool timerActive: true
     property bool gameEnded: false
-    property bool showTimeSelection: true
     // 初始步时属性
     property int whiteStepTimeInitial: 15 * 1000
     property int blackStepTimeInitial: 15 * 1000
@@ -140,7 +139,7 @@ ApplicationWindow {
     Timer {
         id: gameTimer
         interval: 100
-        running: !gameEnded && timerActive && !showTimeSelection // 新增条件：不在时间选择界面时运行
+        running: !gameEnded && timerActive //
         repeat: true
         onTriggered: {
             if (isWhiteTurn) {
@@ -158,6 +157,7 @@ ApplicationWindow {
     ToolBar {
         id: gameToolBar
         anchors.top: parent.top
+        anchors.topMargin: 60
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width * 0.9
         height: 50
@@ -306,25 +306,7 @@ ApplicationWindow {
                 }
             }
 
-            // 音效开关按钮
-            Button {
-                id: soundButton
-                text: soundEnabled ? "🔊" : "🔇"
-                Layout.preferredWidth: 40
-                Layout.preferredHeight: 40
-                palette.buttonText: "white"
 
-                background: Rectangle {
-                    color: "#555555"
-                    radius: 5
-                    border.width: 1
-                    border.color: "#333333"
-                }
-
-                onClicked: {
-                    soundEnabled = !soundEnabled
-                }
-            }
         }
     }
 
@@ -336,7 +318,7 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
         anchors.margins: 10
         spacing: 10
-        visible: !showTimeSelection // 只在非时间选择界面显示
+        visible: true
 
         // 顶部布局 - 黑方倒计时和回合指示器
         RowLayout {
@@ -606,7 +588,26 @@ ApplicationWindow {
         RowLayout {
             Layout.alignment: Qt.AlignRight
             spacing: 10
+            // 音效开关按钮
+            Button {
+                id: soundButton
+                text: soundEnabled ? "🔊" : "🔇"
+                Layout.preferredWidth: 40
+                Layout.preferredHeight: 40
+                palette.buttonText: "white"
+                Layout.alignment: Qt.AlignLeft
 
+                background: Rectangle {
+                    color: "#555555"
+                    radius: 5
+                    border.width: 1
+                    border.color: "#333333"
+                }
+
+                onClicked: {
+                    soundEnabled = !soundEnabled
+                }
+            }
             ColumnLayout {
                 spacing: 2
                 Text {
@@ -639,184 +640,7 @@ ApplicationWindow {
         }
     }
 
-    // 时间选择界面（已添加背景图片和覆盖层）
-    Rectangle {
-        id: timeSelection
-        visible: showTimeSelection
-        anchors.fill: parent  // 修改为填充整个窗口
-        z: 2000
-        color: "transparent"
 
-        radius: 20
-
-        // 背景图片
-        Image {
-            anchors.fill: parent
-            source: "qrc:/pieces/back.jpg"
-            fillMode: Image.PreserveAspectCrop
-            opacity: 1.0
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: Rectangle {
-                    width: timeSelection.width
-                    height: timeSelection.height
-                    radius: timeSelection.radius
-                }
-            }
-        }
-
-        // 边框
-        Rectangle {
-            anchors.fill: parent
-            color: "transparent"
-            border.color: "#8b4513"
-            border.width: 3
-        }
-
-        Rectangle {
-            id: innerContainer
-            anchors.fill: parent
-            anchors.margins: 20
-            color: "transparent"
-
-            ColumnLayout {
-                anchors.centerIn: parent
-                spacing: 30
-
-                Text {
-                    text: "选择计时模式"
-                    font.pixelSize: 32
-                    font.bold: true
-                    Layout.alignment: Qt.AlignHCenter
-                    color: "#f9f1dc"
-                    font.family: "Microsoft YaHei UI"
-                    style: Text.Outline
-                    styleColor: "#a67c52"
-                    font.weight: Font.Bold
-                }
-
-                // 20分钟 + 20秒模式
-                Button {
-                    text: "20分钟 + 20秒/步"
-                    font.pixelSize: 24
-                    font.bold: true
-                    font.family: "Arial"
-                    Layout.preferredWidth: 300
-                    Layout.preferredHeight: 60
-
-                    background: Rectangle {
-                        color: "#e0a85c"
-                        radius: 10
-                        border.width: 2
-                        border.color: "#c88c40"
-                        opacity: 0.85
-                    }
-
-                    contentItem: Text {
-                        text: parent.text
-                        font: parent.font
-                        color: "#2a1e0f"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
-                    TapHandler {
-                        onTapped: {
-                            whiteTotalTime = 20 * 60 * 1000
-                            blackTotalTime = 20 * 60 * 1000
-                            whiteStepTime = 20 * 1000
-                            blackStepTime = 20 * 1000
-                            // 保存初始步时设置
-                             whiteStepTimeInitial = 20 * 1000
-                             blackStepTimeInitial = 20 * 1000
-                            showTimeSelection = false
-                            startNewGame(false)
-                        }
-                    }
-                }
-
-                // 25分钟 + 25秒模式
-                Button {
-                    text: "25分钟 + 25秒/步"
-                    font.pixelSize: 24
-                    font.bold: true
-                    font.family: "Arial"
-                    Layout.preferredWidth: 300
-                    Layout.preferredHeight: 60
-
-                    background: Rectangle {
-                        color: "#e0a85c"
-                        radius: 10
-                        border.width: 2
-                        border.color: "#c88c40"
-                        opacity: 0.85
-                    }
-
-                    contentItem: Text {
-                        text: parent.text
-                        font: parent.font
-                        color: "#2a1e0f"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
-                    TapHandler {
-                        onTapped: {
-                            whiteTotalTime = 25 * 60 * 1000
-                            blackTotalTime = 25 * 60 * 1000
-                            whiteStepTime = 25 * 1000
-                            blackStepTime = 25 * 1000
-                            // 保存初始步时设置
-                             whiteStepTimeInitial = 25 * 1000
-                             blackStepTimeInitial = 25 * 1000
-                            showTimeSelection = false
-                            startNewGame(false)
-                        }
-                    }
-                }
-
-                // 30分钟 + 30秒模式
-                Button {
-                    text: "30分钟 + 30秒/步"
-                    font.pixelSize: 24
-                    font.bold: true
-                    font.family: "Arial"
-                    Layout.preferredWidth: 300
-                    Layout.preferredHeight: 60
-
-                    background: Rectangle {
-                        color: "#e0a85c"
-                        radius: 10
-                        border.width: 2
-                        border.color: "#c88c40"
-                        opacity: 0.85
-                    }
-
-                    contentItem: Text {
-                        text: parent.text
-                        font: parent.font
-                        color: "#2a1e0f"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
-                    TapHandler {
-                        onTapped: {
-                            whiteTotalTime = 30*60*1000
-                            blackTotalTime = 30*60*1000
-                            whiteStepTime = 30*1000
-                            blackStepTime = 30*1000
-                            // 保存初始步时设置
-                             whiteStepTimeInitial = 30*1000
-                             blackStepTimeInitial = 30*1000
-                            showTimeSelection = false
-                            startNewGame(false)
-                        }
-                    }
-                }
-            }
-        }
-    }
     // 使用房间设置重置步时
     function resetStepTimeWithRoomSettings() {
         if (isWhiteTurn) {
@@ -1054,7 +878,18 @@ ApplicationWindow {
     Component.onCompleted: {
         chessBoard.initializeBoard()
         updateCheckState()
-        showTimeSelection = true
+
+        // 设置默认时间为25分钟+25秒模式
+        whiteTotalTime = 25 * 60 * 1000
+        blackTotalTime = 25 * 60 * 1000
+        whiteStepTime = 25 * 1000
+        blackStepTime = 25 * 1000
+        whiteStepTimeInitial = 25 * 1000
+        blackStepTimeInitial = 25 * 1000
+
+        // 直接开始游戏
+        startNewGame(false)
+
         chessBoard.pieceMoved.connect(function() {
             resetStepTimeWithRoomSettings();
             isWhiteTurn = chessBoard.isWhiteTurn;
