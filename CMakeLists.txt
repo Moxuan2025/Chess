@@ -4,7 +4,7 @@ project(Chess VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick Nfc)
 
 qt_standard_project_setup(REQUIRES 6.9)
 
@@ -27,6 +27,13 @@ QML_FILES WLANConnect.qml
 SOURCES networkmanager.h networkmanager.cpp
 QML_FILES ConnectHelp.qml
 QML_FILES Nfc.qml
+QML_FILES
+SOURCES nfcmanager.h nfcmanager.cpp
+RESOURCES android/AndroidManifest.xml
+ android/res/xml/nfc_tech_filter.xml
+android/src/org/qtproject/qt/android/bindings/QtActivity.java
+RESOURCES android/src/org/qtproject/example/NfcHandler.java
+
 # RESOURCES pieces/Chess.png pieces/rook_black.png pieces/king_black.png pieces/queen_black.png pieces/bishop_black.png pieces/knight_black.png pieces/king_white.png pieces/pawn_white.png pieces/rook_white.png pieces/knight_white.png pieces/bishop_white.png pieces/queen_white.png pieces/pawn_black.png pieces/move.wav pieces/back.jpg pieces/about.png pieces/draw.png pieces/NFC.png pieces/takeback.png pieces/touxiang.png pieces/wlan.png pieces/exit.png pieces/setting.png pieces/start.png pieces/connect.png
 
 
@@ -39,6 +46,7 @@ target_compile_features(appChess PRIVATE cxx_std_23)
 target_link_libraries(appChess
     PRIVATE
         Qt6::Quick
+        Qt6::Nfc
 )
 
 set_target_properties(appChess PROPERTIES

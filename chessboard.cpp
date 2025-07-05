@@ -82,7 +82,8 @@ void ChessBoard::initializeBoard()
 {
     m_moveHistory.clear();
     m_lastPiece = nullptr;
-    // 清空现有棋子
+
+    // 重置棋盘
     for (ChessPiece* piece : m_pieces) {
         delete piece;
     }
@@ -246,7 +247,7 @@ void ChessBoard::movePiece(
         QPoint from(piece->x(), piece->y());
         QPoint to(newX, newY);
         m_networkManager->sendMove(from, to);
-    } //发送将要移动坐标给对手，之后进行本地移动，如下
+    }
 
     // 检查目标位置是否有棋子
     ChessPiece* targetPiece = pieceAtPosition(newX, newY);
@@ -285,10 +286,7 @@ void ChessBoard::handleNetworkMove(
 {
     ChessPiece* piece = pieceAtPosition(from.x(), from.y()); //根据坐标进行棋子捕获
     if (piece) {
-        movePiece(piece,
-                  to.x(),
-                  to.y(),
-                  false); // false 表示是网络移动，将对手移动同步到本地（不会再发送坐标）
+        movePiece(piece,to.x(),to.y(),false); // false 表示是网络移动，将对手移动同步到本地（不会再发送坐标）
     }
 }
 ChessPiece* ChessBoard::pieceAtPosition(

@@ -172,7 +172,7 @@ Item {
                     color: "#2a1e0f"
                     font.family: "Microsoft YaHei UI"
                     style: Text.Outline
-                    styleColor: "#f9f1dc"  // 添加描边增强可读性
+                    styleColor: "#f9f1dc"
                     font.weight: Font.Bold
                 }
 
@@ -198,7 +198,7 @@ Item {
                         color: "#2a1e0f"  // 深色文字
                         verticalAlignment: Text.AlignVCenter
                         font.family: "Microsoft YaHei UI"
-                        lineHeight: 1.4  // 增加行高
+                        lineHeight: 1.4
                     }
                 }
 

@@ -1,5 +1,6 @@
 #include "networkmanager.h"
 #include <QDebug>
+#include <QNetworkInterface>
 
 NetworkManager::NetworkManager(
     QObject *parent)
@@ -13,7 +14,15 @@ bool NetworkManager::isConnected() const
 {
     return m_connected;
 }
-
+QString NetworkManager::getLocalIpAddress()
+{
+    foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost)) {
+            return address.toString();
+        }
+    }
+    return "";
+}
 void NetworkManager::startServer()
 {
     if (!m_server) {

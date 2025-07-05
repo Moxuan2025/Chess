@@ -11,6 +11,7 @@ ApplicationWindow {
     title: "国际象棋"
     color: "#1e1e2e"
     property string playerColor: "white"
+
     // 使用 StackView 管理页面导航
     StackView {
         id: stackView
@@ -18,7 +19,7 @@ ApplicationWindow {
         initialItem: mainMenu
     }
 
-    // ==================== 主菜单页面 ====================
+    //主菜单页面
     Component {
         id: mainMenu
 
@@ -223,7 +224,7 @@ ApplicationWindow {
                 }
             }
 
-            // 底部版权信息
+            // 底部信息
             Text {
                 text: "© 2025 国际象棋 | v1.2.0 | 联系我们 17761071375"
                 color: "#aaa"
@@ -240,7 +241,7 @@ ApplicationWindow {
     Component {id: connectPage;ConnectPages{}}
     Component {id: gamePlay;GamePlay{}}
 
-    // ==================== 设置页面 ====================
+    // 设置页面
     Component {
         id: settingsPage
 

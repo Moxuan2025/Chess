@@ -31,19 +31,19 @@ QString ChessPiece::typeStr() const
 {
     switch (m_type) {
     case Pawn:
-        return "pawn"; //xiaobing
+        return "pawn"; //小兵
     case Rook:
-        return "rook"; //che
+        return "rook"; //车
     case Knight:
-        return "knight"; //ma
+        return "knight"; //马
     case Bishop:
-        return "bishop"; //xiang
+        return "bishop"; //象
     case Queen:
-        return "queen"; //wanghou
+        return "queen"; //王后
     case King:
-        return "king"; //wang
+        return "king"; //王
     default:
-        return "none"; //wu
+        return "none"; //无
     }
 }
 
@@ -133,7 +133,6 @@ QList<QPoint> ChessPiece::willGo()
         }
 
         //吃过路兵
-        //if (m_position.y() == enPassantRow) {
         // 检查左右两侧是否有敌方兵
         for (int dx : {-1, 1}) {
             int x = m_position.x() + dx;
@@ -149,7 +148,6 @@ QList<QPoint> ChessPiece::willGo()
                     // 添加吃过路兵位置
                     if (abs(adjacentPiece->m_position.y() - adjacentPiece->m_lastPosition.y()) == 2)
                         possibleMove.append(QPoint(x, y + dir));
-                    //被吃过路兵捕获逻辑在go中
                 }
             }
         }
@@ -303,8 +301,6 @@ QList<QPoint> ChessPiece::willGo()
                     possibleMove.append(nextPos);
                 }
             }
-
-            // TODO: 添加王车易位规则
             break;
         }
     }

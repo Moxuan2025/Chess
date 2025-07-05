@@ -4,12 +4,14 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 #include <QPoint>
+#include <QtQml/qqmlregistration.h>
 
 class NetworkManager : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(
-        bool isConnected READ isConnected NOTIFY connectedChanged)
+    QML_ELEMENT
+
+    Q_PROPERTY(bool isConnected READ isConnected NOTIFY connectedChanged)
 public:
     enum OperationType {
         SurrenderRequest, // 投降请求
@@ -27,6 +29,7 @@ public:
     Q_INVOKABLE void connectToServer(const QString &ip);
     Q_INVOKABLE void sendMove(const QPoint &from, const QPoint &to);                //发送点位
     Q_INVOKABLE void sendOperation(OperationType operation, bool response = false); //发送操作信息
+    Q_INVOKABLE QString getLocalIpAddress();
 
 signals:
     void connectedChanged(bool connected);

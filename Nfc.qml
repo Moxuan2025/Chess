@@ -8,9 +8,14 @@ Item {
     anchors.fill: parent
 
     signal backRequested()
+    signal createRoomRequested()
+    signal joinRoomRequested()
 
     // 对话框显示属性
     property bool showWaitingDialog: false
+    property string nfcRole: ""
+    property string errorMessage: ""
+    property bool showErrorDialog: false
 
     // 背景图片设置
     Image {
@@ -18,6 +23,22 @@ Item {
         source: "qrc:/pieces/back.jpg"
         fillMode: Image.PreserveAspectCrop
         opacity: 0.7
+    }
+
+    function onNfcTagDetected() {
+        console.log("NFC tag detected in QML");
+        // 这里可以添加自定义处理逻辑
+    }
+
+    Component.onCompleted: {
+        // 注册Java回调
+        if (typeof QtAndroid !== 'undefined') {
+            QtAndroid.invokeStaticMethod(
+                "org/qtproject/example/appChess/NfcHandler",
+                "registerQmlCallback",
+                [onNfcTagDetected]
+            );
+        }
     }
 
     // 顶部标题栏
@@ -103,6 +124,13 @@ Item {
                 onTapped: {
                     console.log("NFC创建房间点击")
                     showWaitingDialog = true
+                    nfcRole = "client" // 创建房间的设备是写入方（客户端）
+                    errorMessage = ""
+                    retryCount = 0
+
+                    // 获取并写入本机IP
+                    var localIP = networkManager.getLocalIpAddress()
+                    nfcManager.startClient(localIP)
                 }
             }
         }
@@ -140,6 +168,10 @@ Item {
                 onTapped: {
                     console.log("NFC加入房间点击")
                     showWaitingDialog = true
+                    nfcRole = "host" // 加入房间的设备是读取方（主机）
+                    errorMessage = ""
+                    retryCount = 0
+                    nfcManager.startHost()
                 }
             }
         }
@@ -161,6 +193,30 @@ Item {
             anchors.leftMargin: 30
             font.pixelSize: 14
             font.family: "Arial"
+        }
+    }
+
+    Connections {
+        target: nfcManager
+        function onMessageReceived(message) {
+            if (nfcRole === "host") {
+                // 主机获取客户端IP
+                var clientIP = message
+                networkManager.connectToServer(clientIP)
+                joinRoomRequested()
+            } else if (nfcRole === "client") {
+                // 客户端获取主机IP
+                var hostIP = message
+                networkManager.startServer()
+                createRoomRequested()
+            }
+            showWaitingDialog = false
+        }
+        function onNfcError(error) {
+            console.error("NFC error:", error)
+            showWaitingDialog = false
+            errorMessage = error
+            showErrorDialog = true
         }
     }
 
@@ -190,16 +246,16 @@ Item {
                 font.family: "Microsoft YaHei UI"
             }
 
-            // 取消按钮
+            // 重试按钮
             Rectangle {
                 Layout.preferredWidth: 120
-                Layout.preferredHeight: 30
+                Layout.preferredHeight: 40
                 radius: 8
                 color: "#e0a85c"
                 Layout.alignment: Qt.AlignHCenter
 
                 Text {
-                    text: "取消"
+                    text: "重试"
                     font.pixelSize: 20
                     color: "#2a1e0f"
                     anchors.centerIn: parent
@@ -207,8 +263,75 @@ Item {
                 }
 
                 TapHandler {
-                    onTapped: {showWaitingDialog = false
-                    point.accepted = true}
+                    onTapped: {
+                        if (nfcRole === "host") {
+                            nfcManager.startHost()
+                        } else {
+                            var localIP = networkManager.getLocalIpAddress()
+                            nfcManager.startClient(localIP)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 错误提示对话框
+    Rectangle {
+        id: errorDialog
+        visible: showErrorDialog
+        width: parent.width * 0.8
+        height: 220
+        anchors.centerIn: parent
+        color: "#f0f0f0"
+        radius: 10
+        border.width: 2
+        border.color: "#ff0000"
+        z: 100
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 20
+            spacing: 20
+
+            Text {
+                text: "NFC错误"
+                font.pixelSize: 24
+                color: "#ff0000"
+                Layout.alignment: Qt.AlignHCenter
+                font.family: "Microsoft YaHei UI"
+                font.bold: true
+            }
+
+            Text {
+                text: errorMessage
+                font.pixelSize: 18
+                color: "#2a1e0f"
+                Layout.alignment: Qt.AlignHCenter
+                font.family: "Microsoft YaHei UI"
+                wrapMode: Text.WordWrap
+            }
+
+            // 确定按钮
+            Rectangle {
+                Layout.preferredWidth: 120
+                Layout.preferredHeight: 40
+                radius: 8
+                color: "#e0a85c"
+                Layout.alignment: Qt.AlignHCenter
+
+                Text {
+                    text: "确定"
+                    font.pixelSize: 20
+                    color: "#2a1e0f"
+                    anchors.centerIn: parent
+                    font.family: "Microsoft YaHei UI"
+                }
+
+                TapHandler {
+                    onTapped: {
+                        showErrorDialog = false
+                    }
                 }
             }
         }
@@ -216,6 +339,7 @@ Item {
 
     // 处理返回信号
     onBackRequested: {
+        nfcManager.stopNfc()
         if (typeof stackView !== "undefined") {
             stackView.pop();
         }
