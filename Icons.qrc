@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/">
+        <file>pieces/bishop_black.png</file>
+        <file>pieces/bishop_white.png</file>
+        <file>pieces/Chess.png</file>
+        <file>pieces/king_black.png</file>
+        <file>pieces/king_white.png</file>
+        <file>pieces/knight_black.png</file>
+        <file>pieces/knight_white.png</file>
+        <file>pieces/pawn_black.png</file>
+        <file>pieces/pawn_white.png</file>
+        <file>pieces/queen_black.png</file>
+        <file>pieces/queen_white.png</file>
+        <file>pieces/rook_black.png</file>
+        <file>pieces/rook_white.png</file>
+        <file>GamePlay.qml</file>
+        <file>pieces/move.wav</file>
+        <file>pieces/back.jpg</file>
+        <file>pieces/about.png</file>
+        <file>pieces/draw.png</file>
+        <file>pieces/takeback.png</file>
+        <file>pieces/NFC.png</file>
+        <file>pieces/wlan.png</file>
+        <file>pieces/connect.png</file>
+        <file>pieces/touxiang.png</file>
+        <file>pieces/exit.png</file>
+        <file>pieces/setting.png</file>
+        <file>pieces/start.png</file>
+        <file>pieces/warning.png</file>
+        <file>pieces/join.png</file>
+        <file>pieces/create.png</file>
+        <file>pieces/again.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,179 @@
+cmake_minimum_required(VERSION 3.9.0)
+
+project(Chess VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(Qt6 REQUIRED COMPONENTS Quick Nfc)
+
+qt_standard_project_setup(REQUIRES 6.9)
+
+qt_add_executable(appChess)
+
+qt_add_qml_module(appChess
+    URI Chess
+    VERSION 1.0
+    SOURCES     main.cpp
+    QML_FILES   Main.qml
+    QML_FILES
+
+SOURCES chessboard.h chessboard.cpp
+SOURCES chesspiece.h chesspiece.cpp
+RESOURCES Icons.qrc
+QML_FILES GamePlay.qml
+QML_FILES ConnectPages.qml
+RESOURCES pieces/connect.png
+QML_FILES WLANConnect.qml
+SOURCES networkmanager.h networkmanager.cpp
+QML_FILES ConnectHelp.qml
+QML_FILES Nfc.qml
+QML_FILES
+SOURCES nfcmanager.h nfcmanager.cpp
+RESOURCES android/AndroidManifest.xml
+ android/res/xml/nfc_tech_filter.xml
+android/src/org/qtproject/qt/android/bindings/QtActivity.java
+RESOURCES android/src/org/qtproject/example/NfcHandler.java
+)
+
+target_compile_features(appChess PRIVATE cxx_std_23)
+
+target_link_libraries(appChess
+    PRIVATE
+        Qt6::Quick
+        Qt6::Nfc
+)
+
+set_target_properties(appChess PROPERTIES
+    AUTORCC TRUE
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
+
+include(GNUInstallDirs)
+install(TARGETS appChess
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+find_package(Qt6 COMPONENTS Network REQUIRED)
+target_link_libraries(appChess PRIVATE Qt6::Network)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# set(CMAKE_CXX_STANDARD_REQUIRED ON) # Globally preventing the fallback behaviour of C++ standard
+#qt_add_executable(Chess)  //Creates and finalizes an application target of a platform-specific type.
+#This command performs the following tasks:
+#    1. Create a CMake target of the appropriate type for the target platform.
+#    2. Link the target to the Qt::Core library.
+#    3. Handle finalization of the CMake target.
+
+# set(CMAKE_CXX_STANDARD_REQUIRED ON) # Globally preventing the fallback behaviour of C++ standard
+
+# qt_standard_project_setup()  #set(CMAKE_AUTOUIC ON)  set(CMAKE_AUTOMOC ON)
+
+
+
+
+
+
+# cmake_minimum_required(VERSION 3.16)
+#
+# project(Chess VERSION 0.1 LANGUAGES CXX)
+#
+# @if !true
+# set(CMAKE_AUTOMOC ON)
+# @endif
+# set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#
+# find_package(Qt6 REQUIRED COMPONENTS Quick)
+#
+# @if true
+# @if true
+# qt_standard_project_setup(REQUIRES 6.9)
+# @else
+# qt_standard_project_setup()
+# @endif
+# @endif
+#
+# qt_add_executable(appChess
+#     main.cpp
+# )
+#
+# qt_add_qml_module(appChess
+#     URI Chess
+#     VERSION 1.0
+#     QML_FILES
+#         Main.qml
+# )
+#
+# # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
+# # If you are developing for iOS or macOS you should consider setting an
+# # explicit, fixed bundle identifier manually though.
+# set_target_properties(appChess PROPERTIES
+# #    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.appChess
+#     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+#     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+#     MACOSX_BUNDLE TRUE
+#     WIN32_EXECUTABLE TRUE
+# )
+#
+# target_link_libraries(appChess
+#     PRIVATE Qt6::Quick
+# )
+#
+# include(GNUInstallDirs)
+# install(TARGETS appChess
+#     BUNDLE DESTINATION .
+#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+# )
+
+
